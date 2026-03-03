@@ -14,4 +14,10 @@ namespace PickAndPlace.Models
         Unknown = 2,
         Stopped = 4
     }
+    public enum SaveType
+    {
+        ORIGINAL_RESULT = 0,
+        RESULT = 1,
+        ORIGINAL = 2
+    }
 }

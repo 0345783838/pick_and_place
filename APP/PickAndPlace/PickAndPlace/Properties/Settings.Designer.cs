@@ -34,5 +34,77 @@ namespace PickAndPlace.Properties {
                 this["CamSn"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int CamExposure {
+            get {
+                return ((int)(this["CamExposure"]));
+            }
+            set {
+                this["CamExposure"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string RobotIp {
+            get {
+                return ((string)(this["RobotIp"]));
+            }
+            set {
+                this["RobotIp"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int RobotPort {
+            get {
+                return ((int)(this["RobotPort"]));
+            }
+            set {
+                this["RobotPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool SaveEnable {
+            get {
+                return ((bool)(this["SaveEnable"]));
+            }
+            set {
+                this["SaveEnable"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int SaveMode {
+            get {
+                return ((int)(this["SaveMode"]));
+            }
+            set {
+                this["SaveMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SavePath {
+            get {
+                return ((string)(this["SavePath"]));
+            }
+            set {
+                this["SavePath"] = value;
+            }
+        }
     }
 }

@@ -53,6 +53,91 @@
                 </GroupBox>
             </Grid>
         </Grid>
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="170" />
+                <RowDefinition Height="185.225" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <GroupBox
+                    Margin="5"
+                    BorderBrush="Gray"
+                    BorderThickness="1"
+                    Header="Controlling Camera" />
+            </Grid>
+            <Grid Grid.Row="1">
+                <GroupBox
+                    Margin="5"
+                    BorderBrush="Gray"
+                    BorderThickness="1"
+                    Header="Teaching Point" />
+            </Grid>
+            <Grid Grid.Row="2">
+                <GroupBox
+                    Margin="5"
+                    BorderBrush="Gray"
+                    BorderThickness="1"
+                    Header="Calibration Points">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition Height="80" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <DataGrid
+                                Name="dgCalibrationPoints"
+                                Margin="10,5,10,5"
+                                AlternationCount="15000"
+                                AutoGenerateColumns="False"
+                                EnableColumnVirtualization="True"
+                                EnableRowVirtualization="True"
+                                IsReadOnly="True"
+                                ItemsSource="{Binding PointsList}"
+                                RowHeight="35"
+                                SelectedItem="{Binding SelectedImageInfo}"
+                                SelectionMode="Single"
+                                VirtualizingPanel.IsVirtualizing="True">
+                                <DataGrid.ColumnHeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                        <Setter Property="VerticalContentAlignment" Value="Center" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                    </Style>
+                                </DataGrid.ColumnHeaderStyle>
+                                <DataGrid.Columns>
+                                    <!--  Cột số thứ tự  -->
+                                    <DataGridTemplateColumn Width="30" Header="ID">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Text="{Binding ID}" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!--  Cột đường dẫn ảnh  -->
+                                    <DataGridTemplateColumn Width="*" Header="Image Name">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <TextBlock
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Center"
+                                                    Foreground="{Binding Status, Converter={StaticResource StatusConverter}}"
+                                                    Text="{Binding FilePath, Converter={StaticResource FileNameConverterMain}}"
+                                                    TextAlignment="Left" />
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </Grid>
 
     </Grid>
 </Window>
