@@ -1,0 +1,12 @@
+# App
+.vs/
+APP/PickAndPlace/PickAndPlace/.vs/
+APP/PickAndPlace/PickAndPlace/obj/Debug/*
+APP/PickAndPlace/PickAndPlace/bin/Debug/*
+
+# Service
+APP/SERVICE/.idea/*
+APP/SERVICE/.venv/*
+APP/SERVICE/__pycache__/
+APP/SERVICE/main.build/
+APP/SERVICE/main.dist/
