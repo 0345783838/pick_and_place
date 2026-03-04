@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PickAndPlace.Controller.Robot
 {
-    public class RobotArmController : IDisposable
+    public class EpsonRobotClient : IDisposable
     {
         
         private TcpClient _client;
@@ -18,13 +18,20 @@ namespace PickAndPlace.Controller.Robot
 
         public bool IsConnected => _connected;
 
-        public RobotArmController(string ip, int port = 5000)
+        public EpsonRobotClient(string ip, int port = 5000)
         {
             _ip = ip;
             _port = port;
         }
 
         #region Connection
+        public async Task EnsureConnectedAsync()
+        {
+            if (_client == null || !_client.Connected)
+            {
+                await ConnectAsync();
+            }
+        }
 
         public async Task ConnectAsync()
         {
@@ -112,7 +119,8 @@ namespace PickAndPlace.Controller.Robot
         {
             var pose = new RobotPose();
 
-            var parts = data.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            //var parts = data.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var parts = data.Split(' ');
 
             foreach (var p in parts)
             {

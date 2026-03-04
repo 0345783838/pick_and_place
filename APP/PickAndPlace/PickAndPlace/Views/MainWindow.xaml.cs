@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PickAndPlace.Views.EyeHand2dCalibWindows;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -47,7 +48,8 @@ namespace PickAndPlace.Views
 
         private void btnCalibEyeToHand2D_Click(object sender, RoutedEventArgs e)
         {
-
+            var window = new EyeHand2dCalibWindow();
+            window.ShowDialog();
         }
 
         private void btnStart_Click(object sender, RoutedEventArgs e)

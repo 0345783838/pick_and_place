@@ -146,7 +146,7 @@
     <Compile Include="Controller\APIs\APICommunication.cs" />
     <Compile Include="Controller\Camera\CameraManager.cs" />
     <Compile Include="Controller\Camera\LincolnCamera.cs" />
-    <Compile Include="Controller\Robot\RobotArmController.cs" />
+    <Compile Include="Controller\Robot\EpsonRobotClient.cs" />
     <Compile Include="Models\MyEnum.cs" />
     <Compile Include="Utils\BindingConverter.cs" />
     <Compile Include="Utils\Converter.cs" />
@@ -246,6 +246,14 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Resource Include="Resources\Icons\redo.png" />
+    <Resource Include="Resources\Icons\add.png" />
+    <Resource Include="Resources\Icons\geolocation.png" />
+    <Resource Include="Resources\Icons\target.png" />
+    <Resource Include="Resources\Icons\remove-row.png" />
+    <Resource Include="Resources\Icons\clear.png" />
+    <Resource Include="Resources\Icons\capture-image.png" />
+    <Resource Include="Resources\Icons\camera-connect.png" />
     <Resource Include="Resources\Icons\robot-arm.png" />
     <Resource Include="Resources\Icons\board.png" />
     <EmbeddedResource Include="Properties\Resources.resx">

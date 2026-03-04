@@ -23,5 +23,55 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
         {
             InitializeComponent();
         }
+
+        private void btnConnectCamera_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void btnCaptureImage_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void btnLoadIntrinsicCalib_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void btnSelectPoint_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void btnGetRobotCoord_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void btnResetPoint_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void btnAddPoint_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void btnRemoveRow_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void btnClearAll_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void btnCalibrate_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
     }
 }
