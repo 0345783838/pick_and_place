@@ -289,7 +289,7 @@
                                 <CheckBox
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    IsChecked="True">
+                                    IsChecked="False">
                                     <CheckBox.LayoutTransform>
                                         <ScaleTransform ScaleX="3" ScaleY="3" />
                                     </CheckBox.LayoutTransform>
@@ -307,10 +307,46 @@
                     BorderBrush="Gray"
                     BorderThickness="1"
                     Header="Camera View">
-                    <myControl:ImageBox
-                        x:Name="imbImage"
-                        Margin="5"
-                        Background="LightGray" />
+                    <!--<Border
+                         x:Name="bdView"
+                         Padding="10"
+                         Background="#2A2A2A"
+                         ClipToBounds="True"
+                         CornerRadius="10">
+                        <Grid x:Name="viewPort"
+          RenderTransformOrigin="0.5,0.5">
+                            <Grid.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform x:Name="scaleTransform"/>
+                                    <TranslateTransform x:Name="translateTransform"/>
+                                </TransformGroup>
+                            </Grid.RenderTransform>
+                            <Image
+                                 x:Name="imbImage"
+                                 MouseDown="imbImage_MouseDown"
+                                 MouseLeftButtonDown="imbImage_MouseLeftButtonDown"
+                                 MouseLeftButtonUp="imbImage_MouseLeftButtonUp"
+                                 MouseMove="imbImage_MouseMove"
+                                 MouseWheel="imbImage_MouseWheel"
+                                 RenderTransformOrigin="0.5,0.5"
+                                 Stretch="None">
+
+                 
+                            </Image>
+                            <Canvas x:Name="overlayCanvas"
+                                     IsHitTestVisible="False">
+
+                            </Canvas>
+                        </Grid>
+                     
+                         
+                    </Border>-->
+                    <myControl:ImageBox x:Name="imbImage"
+                                        Background="DarkGray"
+                                        PreviewMouseDown="imbImage_PreviewMouseDown">
+                        
+                    </myControl:ImageBox>
+                       
 
                 </GroupBox>
             </Grid>

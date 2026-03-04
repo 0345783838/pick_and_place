@@ -131,16 +131,17 @@ namespace PickAndPlace.Views.SettingsWindows
                 error.ShowDialog();
                 return;
             }
-            if (!PlcController.ConnectPlc(_param.ApiUrlCom, tbPlcIp.Text, int.Parse(tbPlcPort.Text)))
-            {
-                var error = new ErrorWindow("No connection to PLC!\rKhông có kết nối PLC!");
-                error.ShowDialog();
-                return;
-            }
-            else
-            {
-                PlcController.DisConnectPlc(_param.ApiUrlCom);
-            }
+
+            //if (!PlcController.ConnectPlc(_param.ApiUrlCom, tbPlcIp.Text, int.Parse(tbPlcPort.Text)))
+            //{
+            //    var error = new ErrorWindow("No connection to PLC!\rKhông có kết nối PLC!");
+            //    error.ShowDialog();
+            //    return;
+            //}
+            //else
+            //{
+            //    PlcController.DisConnectPlc(_param.ApiUrlCom);
+            //}
             // Save Settings
             _param.CamSn = cbbCamSn.Text;
             _param.CamExposure = int.Parse(tbCamExposure.Text);
@@ -188,7 +189,7 @@ namespace PickAndPlace.Views.SettingsWindows
         {
             this.Close();
         }
-        private void btnCheckCamera1_Click(object sender, RoutedEventArgs e)
+        private void btnCheckCamera_Click(object sender, RoutedEventArgs e)
         {
             if (cbbCamSn.Text == string.Empty)
             {
@@ -241,7 +242,7 @@ namespace PickAndPlace.Views.SettingsWindows
             var plcPort = int.Parse(tbRobotPort.Text);
             new Task(() =>
             {
-                result = PlcController.ConnectPlc(_param.ApiUrlCom, plcIp, plcPort);
+                //result = PlcController.ConnectPlc(_param.ApiUrlCom, plcIp, plcPort);
                 waiting.KillMe = true;
             }).Start();
 
@@ -252,7 +253,7 @@ namespace PickAndPlace.Views.SettingsWindows
             {
                 new Task(() =>
                 {
-                    PlcController.DisConnectPlc(_param.ApiUrlCom);
+                    //PlcController.DisConnectPlc(_param.ApiUrlCom);
                 }).Start();
                 var info = new InformationWindow("PLC connection is OK!\rKết nối PLC OK!");
                 info.ShowDialog();
@@ -268,6 +269,11 @@ namespace PickAndPlace.Views.SettingsWindows
         {
             Regex regex = new Regex(@"^-?(?:\d+)?(?:\.\d*)?$");
             e.Handled = !regex.IsMatch(e.Text);
+        }
+
+        private void tbRobotIp_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+
         }
     }
 }

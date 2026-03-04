@@ -51,29 +51,29 @@ namespace PickAndPlace.Views.IntrinsicCalibWindows
                 return;
             }
 
-            LincolnCamera.Connect(cbbCamSn.SelectedItem.ToString());
+            //LincolnCamera.Connect(cbbCamSn.SelectedItem.ToString());
         }
 
         private bool CheckAndStartCamera()
         {
-            return true;
-            _cameraManager = CameraManager.GetInstance();
-            _camera1 = _cameraManager.GetCamera1();
-            _camera2 = _cameraManager.GetCamera2();
-            if (!_camera1.IsOpen())
-            {
-                _mainWindow.ShowError(string.Format("Không mở được camera 1 với SN {0}\nCan't open 1 camera with SN:{0}", _param.Cam1Sn));
-                return false;
-            }
-            if (!_camera2.IsOpen())
-            {
-                _mainWindow.ShowError(string.Format("Không mở được camera 2 với SN {0}\nCan't open 2 camera with SN:{0}", _param.Cam2Sn));
-                return true;
-            }
-            _camera1.SetExposureTime(_param.Cam1Exposure);
-            _camera2.SetExposureTime(_param.Cam2Exposure);
-            _camera1.Start();
-            _camera2.Start();
+            //return true;
+            //_cameraManager = CameraManager.GetInstance();
+            //_camera1 = _cameraManager.GetCamera1();
+            //_camera2 = _cameraManager.GetCamera2();
+            //if (!_camera1.IsOpen())
+            //{
+            //    _mainWindow.ShowError(string.Format("Không mở được camera 1 với SN {0}\nCan't open 1 camera with SN:{0}", _param.Cam1Sn));
+            //    return false;
+            //}
+            //if (!_camera2.IsOpen())
+            //{
+            //    _mainWindow.ShowError(string.Format("Không mở được camera 2 với SN {0}\nCan't open 2 camera with SN:{0}", _param.Cam2Sn));
+            //    return true;
+            //}
+            //_camera1.SetExposureTime(_param.Cam1Exposure);
+            //_camera2.SetExposureTime(_param.Cam2Exposure);
+            //_camera1.Start();
+            //_camera2.Start();
             return true;
         }
 

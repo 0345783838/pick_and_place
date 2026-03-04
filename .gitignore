@@ -5,8 +5,8 @@ APP/PickAndPlace/PickAndPlace/obj/Debug/*
 APP/PickAndPlace/PickAndPlace/bin/Debug/*
 
 # Service
-APP/SERVICE/.idea/*
-APP/SERVICE/.venv/*
-APP/SERVICE/__pycache__/
-APP/SERVICE/main.build/
-APP/SERVICE/main.dist/
+SERVICE/pick_and_place_service/.idea/*
+SERVICE/pick_and_place_service/.venv/*
+SERVICE/pick_and_place_service/__pycache__/
+SERVICE/pick_and_place_service/main.build/
+SERVICE/pick_and_place_service/main.dist/

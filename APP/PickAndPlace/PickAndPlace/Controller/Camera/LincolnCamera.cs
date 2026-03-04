@@ -10,6 +10,7 @@ using System.Windows.Media.Media3D;
 using System.Windows.Media;
 using System.Windows;
 using System.Collections.Generic;
+using NLog;
 
 namespace PickAndPlace.Controllers.Camera
 {
@@ -81,6 +82,7 @@ namespace PickAndPlace.Controllers.Camera
             }
             return true;
         }
+
         private void GetDeviceByIdx(int idx)
         {
             try
@@ -337,7 +339,6 @@ namespace PickAndPlace.Controllers.Camera
         {
             lock (_synLock)
             {
-
                 int nRet;
                 UInt32 nPayloadSize = 0;
                 MyCamera.MVCC_INTVALUE stParam = new MyCamera.MVCC_INTVALUE();
@@ -397,7 +398,6 @@ namespace PickAndPlace.Controllers.Camera
                     return null;
                 }
 
-
                 if (enDstPixelType == MyCamera.MvGvspPixelType.PixelType_Gvsp_Mono8)
                 {
 
@@ -426,14 +426,10 @@ namespace PickAndPlace.Controllers.Camera
                             _pBufForSaveImage[i * stFrameInfo.nWidth * 3 + j * 3 + 2] = chRed;
                         }
                     }
-
                     Bitmap bmp = new Bitmap(stFrameInfo.nWidth, stFrameInfo.nHeight, stFrameInfo.nWidth * 3, System.Drawing.Imaging.PixelFormat.Format24bppRgb, pImage);
                     return bmp;
-
                 }
             }
-
-
         }
     }
 
