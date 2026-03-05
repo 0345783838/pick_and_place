@@ -44,5 +44,8 @@
     <Setting Name="EndPointCheckCalibReady" Type="System.String" Scope="User">
       <Value Profile="(Default)">check_calib_ready_status</Value>
     </Setting>
+    <Setting Name="EndPointGetRealCoord" Type="System.String" Scope="User">
+      <Value Profile="(Default)">cal_robot_coord</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

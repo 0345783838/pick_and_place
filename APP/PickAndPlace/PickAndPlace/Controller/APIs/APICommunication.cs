@@ -20,6 +20,50 @@ namespace PickAndPlace.Controllers.APIs
         public static Properties.Settings _param = Properties.Settings.Default;
 
 
+        public static GetCoordResponse GetRealCoord(string url, Image<Bgr, byte> image, double pcbWidth, double pcbHeight, int timeout = 10000)
+        {
+            var options = new RestClientOptions(url)
+            {
+                Timeout = TimeSpan.FromMilliseconds(timeout)
+            };
+
+            var client = new RestClient(options);
+
+            var request = new RestRequest(_param.EndPointGetRealCoord, Method.Post);
+            request.AlwaysMultipartFormData = true;
+            var payload = new
+            {
+                width = pcbWidth,
+                height = pcbHeight
+            };
+            // Add File
+            byte[] jpegData = image.ToJpegData();
+            request.AddFile("image", jpegData, $"image.jpg");
+
+            string paramsJson = JsonConvert.SerializeObject(payload);
+            request.AddParameter(
+                                "pcb_size",
+                                paramsJson,
+                                ParameterType.GetOrPost
+            );
+            var response = client.Execute(request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                try
+                {
+                    return JsonConvert.DeserializeObject<GetCoordResponse>(response.Content);
+                }
+                catch (Exception ex)
+                {
+                    logger.Debug(ex.Message);
+                    return null;
+                }
+            }
+
+            return null;
+        }
+
         public static Calib2DResponse Calibration2D(string url, ObservableCollection<PairPoint> pairPoints, int timeout = 10000)
         {
             var options = new RestClientOptions(url)
@@ -159,6 +203,38 @@ namespace PickAndPlace.Controllers.APIs
             }
 
             return null;
+        }
+        public static bool CheckMatrixReady(string url, int timeout = 10000)
+        {
+            var options = new RestClientOptions(url)
+            {
+                Timeout = TimeSpan.FromMilliseconds(timeout)
+            };
+
+            var client = new RestClient(options);
+
+            var request = new RestRequest(_param.EndPointCheckCalibReady, Method.Post);
+
+            var response = client.Execute(request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                try
+                {
+                    var res = JsonConvert.DeserializeObject<Calib2DResponse>(response.Content);
+                    if (res != null && res.Result)
+                    {
+                        return true;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.Debug(ex.Message);
+                    return false;
+                }
+            }
+
+            return false;
         }
 
         public static bool CheckAPIStatus(string url, int timeout = 1000)

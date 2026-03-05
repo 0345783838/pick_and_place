@@ -23,22 +23,60 @@ class CalculateRobotCoordService(BaseService):
 
         return img_base64
 
-    @staticmethod
-    def _get_box_centers(boxes):
-        centers = []
-        for box in boxes:
-            x_center = (box[0] + box[2]) / 2
-            y_center = (box[1] + box[3]) / 2
-            centers.append([x_center, y_center])
-        return np.array(centers)
+    def cal_robot_coord(self, image, pcb_width, pcb_height):
+        img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        matches = self.image_matcher.match(img_gray, self.template)
+        if len(matches) == 0:
+            return DataResponse(Result=False,
+                                Message='Không tìm thấy góc PCB')
 
-    @staticmethod
-    def euclidean_distance(pointA, pointB):
-        return np.linalg.norm(pointA - pointB)
+        result = matches[0]
 
-    def cal_robot_coord(self, image):
-        # calculate robot arm coord
-        pass
+        angle = result.angle
+        left_bottom_x = result.left_bottom_x
+        left_bottom_y = result.left_bottom_y
+
+        # Calculate real PCB center coord
+        corner_robot = self.calib.transform([left_bottom_x, left_bottom_y])
+        rx, ry = corner_robot
+        dx = pcb_width / 2
+        dy = pcb_height / 2
+
+        dx_r = dx * math.cos(angle) - dy * math.sin(angle)
+        dy_r = dx * math.sin(angle) + dy * math.cos(angle)
+
+        cx = rx + dx_r
+        cy = ry + dy_r
+
+        theta_offset = math.atan2(self.calib.matrix[1, 0], self.calib.matrix[0, 0])
+        angle_robot = angle + theta_offset
+
+        cv2.polylines(image, [np.array(
+            [[result.left_top_x, result.left_top_y], [result.right_top_x, result.right_top_y],
+             [result.right_bottom_x, result.right_bottom_y], [result.left_bottom_x, result.left_bottom_y]], np.int32)],
+                      True, (0, 255, 0), 1)
+
+
+        # Get draw text pos
+        if result.left_top_x < result.right_top_x:
+            draw_x = int(result.left_top_x) - 100
+        else:
+            draw_x = int(result.right_top_x) - 100
+
+        if result.left_top_y < result.right_top_y:
+            draw_Y = int(result.left_top_y) - 100
+        else:
+            draw_Y = int(result.right_top_y) - 100
+
+
+        cv2.putText(image, f"Score: {result.score:.4f} --- Angle: {angle:.4f}", (draw_x, draw_Y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+        return DataResponse(Result=True,
+                            ResImg=self._convert_2_base64(image),
+                            RobotX=cx,
+                            RobotY=cy,
+                            RobotAngle=angle_robot
+                            )
 
 
 if __name__ == '__main__':

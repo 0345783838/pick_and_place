@@ -68,9 +68,6 @@
                                     Source="/Resources/Icons/settings.png"
                                     Style="{DynamicResource imageButton}" />
                             </Button>
-
-                            <Separator />
-
                             <Separator />
                             <Button
                                 x:Name="btnCalibEyeToHand2D"
@@ -111,6 +108,20 @@
                                     Width="50"
                                     Height="50"
                                     Source="/Resources/Icons/stop.png"
+                                    Style="{DynamicResource imageButton}" />
+                            </Button>
+                            <Separator />
+                            <Button
+                                x:Name="btnTest"
+                                Margin="5,0,5,0"
+                                Click="btnTest_Click"
+                                IsEnabled="False"
+                                Style="{StaticResource btToolBarStyle}"
+                                ToolTip="Stop">
+                                <Image
+                                    Width="50"
+                                    Height="50"
+                                    Source="/Resources/Icons/screenshot.png"
                                     Style="{DynamicResource imageButton}" />
                             </Button>
                             <Separator />
@@ -207,7 +218,146 @@
                         Background="LightGray" />
                 </GroupBox>
             </Grid>
+            <Grid Grid.Column="1">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="280" />
+                        <RowDefinition Height="252" />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <GroupBox
+                        Margin="5"
+                        BorderBrush="Gray"
+                        BorderThickness="1"
+                        Header="Statistics">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="5*" />
+                                    <RowDefinition Height="22*" />
+                                </Grid.RowDefinitions>
+                                <Grid Grid.Row="0">
+                                    <StackPanel
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Orientation="Horizontal">
+                                        <Label Content="Working Shift:" />
+                                        <Label
+                                        Name="lbWorkingShift"
+                                        Content="7:00 - 18:30"
+                                        FontWeight="Bold"
+                                        Foreground="DarkBlue" />
+                                        <Label Content="---" />
+                                        <Label Content="Start Date:" />
+                                        <Label
+                                        Name="lbDate"
+                                        Content="16/01/2026"
+                                        FontWeight="Bold"
+                                        Foreground="DarkBlue" />
+                                    </StackPanel>
 
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <StackPanel
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              Orientation="Vertical">
+                                                                                <Label
+                                              Content="OK"
+                                              FontSize="14"
+                                                                                    HorizontalAlignment="Center"
+                                              FontWeight="Bold"
+                                              Foreground="Green" />
+                                                                                <TextBox
+                                              Name="tbOKCount"
+                                              Width="50"
+                                              Margin="5,0,0,0"
+                                              HorizontalContentAlignment="Center"
+                                              VerticalContentAlignment="Center"
+                                              BorderBrush="DarkGray"
+                                              FontSize="14"
+                                              FontWeight="Bold"
+                                              Foreground="Green"
+                                              IsReadOnly="True" />
+                                                                                <Label
+                                              Margin="0,25,0,0"
+                                              Content="Fail"
+                                                                                      HorizontalAlignment="Center"
+                                              FontSize="14"
+                                              FontWeight="Bold"
+                                              Foreground="Red" />
+                                                                            <TextBox
+                                              Name="tbNGCount"
+                                              Width="50"
+                                              Margin="5,0,0,0"
+                                              HorizontalContentAlignment="Center"
+                                              VerticalContentAlignment="Center"
+                                              BorderBrush="DarkGray"
+                                              FontSize="14"
+                                              FontWeight="Bold"
+                                              Foreground="Red"
+                                              IsReadOnly="True" />  
+                                        </StackPanel>
+                                        <lvc:PieChart
+                           Grid.Row="1"
+                           LegendLocation="Right"
+                                            Width="300"
+                           Series="{Binding PieSeriesCollection}" />
+
+                                    </StackPanel>
+                                </Grid>
+     
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                    <Grid Grid.Row="2">
+                        <GroupBox
+                            Margin="5"
+                            BorderBrush="Gray"
+                            BorderThickness="1"
+                            Header="Messages">
+                            <ListBox x:Name="LogListBox" ItemsSource="{Binding Logger.Logs}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock>
+                                            <Run Foreground="Gray" Text="{Binding TimeText, Mode=OneWay}" />
+                                            <Run Text=" [" />
+                                            <Run FontWeight="Bold" Text="{Binding Source, Mode=OneWay}" />
+                                            <Run Text="] " />
+                                            <Run Text="{Binding Message, Mode=OneWay}">
+                                                <Run.Style>
+                                                    <Style TargetType="Run">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Level}" Value="Error">
+                                                                <Setter Property="Foreground" Value="Red" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Level}" Value="Warning">
+                                                                <Setter Property="Foreground" Value="Orange" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Level}" Value="Success">
+                                                                <Setter Property="Foreground" Value="LimeGreen" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Run.Style>
+                                            </Run>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </GroupBox>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <GroupBox
+                            Margin="5"
+                            BorderThickness="1"
+                            Header="Calculate Results">
+                            
+                        </GroupBox>
+                    </Grid>
+                </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </Window>

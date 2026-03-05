@@ -10,7 +10,7 @@
     xmlns:utils="clr-namespace:PickAndPlace.Utils"
     Title="Hand-Eye 2D Calibration"
     Width="1300"
-    Height="768"
+    Height="786"
     Closing="Window_Closing"
     Icon="/Resources/Icons/robot-arm.png"
     Loaded="Window_Loaded"
@@ -492,7 +492,7 @@
                                     FontSize="12"
                                     IconHeight="27"
                                     IconWidth="30"
-                                    IsEnabled="{Binding CanFinish}"
+                                    IsEnabled="{Binding CanSelectPoint}"
                                     LeftIcon="/Resources/Icons/target.png"
                                     MouseDown="btnSelectPoint_MouseDown"
                                     StartColor="#C8AAAA" />
@@ -562,7 +562,6 @@
                                     FontSize="12"
                                     IconHeight="27"
                                     IconWidth="30"
-                                    IsEnabled="{Binding CanFinish}"
                                     LeftIcon="/Resources/Icons/geolocation.png"
                                     MouseDown="btnGetRobotCoord_MouseDown"
                                     StartColor="#C8AAAA" />
@@ -689,7 +688,7 @@
                                     FontSize="12"
                                     IconHeight="40"
                                     IconWidth="35"
-                                    IsEnabled="{Binding CanFinish}"
+                                    IsEnabled="{Binding CanRemove}"
                                     LeftIcon="/Resources/Icons/remove-row.png"
                                     MouseDown="btnRemoveRow_MouseDown"
                                     StartColor="#EE9B57" />
@@ -703,7 +702,7 @@
                                     FontSize="12"
                                     IconHeight="35"
                                     IconWidth="30"
-                                    IsEnabled="{Binding CanFinish}"
+                                    IsEnabled="{Binding CanRemove}"
                                     LeftIcon="/Resources/Icons/clear.png"
                                     MouseDown="btnClearAll_MouseDown"
                                     StartColor="#F6BDC0" />
@@ -717,7 +716,7 @@
                                     FontSize="12"
                                     IconHeight="40"
                                     IconWidth="35"
-                                    IsEnabled="{Binding CanFinish}"
+                                    IsEnabled="{Binding CanCalib}"
                                     LeftIcon="/Resources/Icons/robot-arm.png"
                                     MouseDown="btnCalibrate_MouseDown"
                                     StartColor="#ccffaa" />
@@ -802,7 +801,7 @@
                                     FontSize="12"
                                     IconHeight="27"
                                     IconWidth="30"
-                                    IsEnabled="{Binding CanFinish}"
+                                    IsEnabled="{Binding CanValidate}"
                                     LeftIcon="/Resources/Icons/target.png"
                                     MouseDown="btnSelectValidPoint_MouseDown"
                                     StartColor="#C8AAAA" />
@@ -872,14 +871,14 @@
                                     Width="110"
                                     Height="37"
                                     Margin="35,5,5,5"
-                                    EndColor="#1C4D8D"
+                                    EndColor="#6e78ff"
                                     FontSize="12"
                                     IconHeight="27"
+                                    IsEnabled="{Binding CanValidate}"
                                     IconWidth="30"
-                                    IsEnabled="{Binding CanFinish}"
                                     LeftIcon="/Resources/Icons/moving.png"
                                     MouseDown="btnMoveRobotCoord_MouseDown"
-                                    StartColor="#C8AAAA" />
+                                    StartColor="#61f4de" />
                             </StackPanel>
                         </Grid>
                         <Grid Grid.Row="3">
@@ -893,14 +892,14 @@
                                     Width="110"
                                     Height="45"
                                     Margin="15,5,5,5"
-                                    EndColor="#75B06F"
+                                    EndColor="#e8b595"
                                     FontSize="12"
                                     IconHeight="30"
                                     IconWidth="35"
                                     IsEnabled="{Binding CanFinish}"
-                                    LeftIcon="/Resources/Icons/save.png"
+                                    LeftIcon="/Resources/Icons/inbox.png"
                                     MouseDown="btnLoadExistingMatrix_MouseDown"
-                                    StartColor="#C6D870" />
+                                    StartColor="#b190ba" />
 
                                 <uc:CustomButton2
                                     x:Name="btnSaveMatrix"
@@ -908,14 +907,14 @@
                                     Width="110"
                                     Height="45"
                                     Margin="15,5,5,5"
-                                    EndColor="#75B06F"
+                                    EndColor="#7a8fd3"
                                     FontSize="12"
                                     IconHeight="30"
                                     IconWidth="35"
-                                    IsEnabled="{Binding CanFinish}"
+                                    IsEnabled="{Binding CalibFinished}"
                                     LeftIcon="/Resources/Icons/save.png"
                                     MouseDown="btnSaveMatrix_MouseDown"
-                                    StartColor="#C6D870" />
+                                    StartColor="#45cde9" />
 
                             </StackPanel>
                         </Grid>

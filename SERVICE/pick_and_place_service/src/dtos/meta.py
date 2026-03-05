@@ -3,16 +3,11 @@ from pydantic import BaseModel
 
 class DataResponse(BaseModel):
     Result: bool = False  # True/False
-    ErrorCode: str = None  # ["PASS", "ERROR_001", "ERROR_002", "ERROR_003",...]
-    ErrorDesc: str = None  # ["Khay đĩa OK", "Khay đĩa bất thường",...]
     ResImg: str = None  # base64 result encoded image
-    MaxDiskDistance: float = None
-    MinDiskDistance: float = None
-    CropBox: str = None  # x1,x2,y1,y2
-    UvBox1: str = None  # x1,x2,y1,y2
-    UvBox2: str = None  # x1,x2,y1,y2
-    Mid1: str = None
-    Mid2: str = None
+    RobotX: float = None
+    RobotY: float = None
+    RobotAngle: float = None
+    Message: str = None
 
 
 class Calib2DResponse(BaseModel):

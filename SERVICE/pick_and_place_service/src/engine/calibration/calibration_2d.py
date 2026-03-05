@@ -4,8 +4,10 @@ import json
 
 
 class Calibration2D:
-    def __init__(self):
-        self.matrix = None
+    def __init__(self, path):
+        res, mes = self.load(path)
+        if not res:
+            self.matrix = None
 
     def is_calibrated(self):
         return self.matrix is not None

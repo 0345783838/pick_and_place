@@ -1,5 +1,7 @@
 ﻿using PickAndPlace.Controller;
+using PickAndPlace.Controllers;
 using PickAndPlace.Models;
+using PickAndPlace.Services;
 using PickAndPlace.Views.EyeHand2dCalibWindows;
 using PickAndPlace.Views.UtilitiesWindows;
 using System;
@@ -29,6 +31,9 @@ namespace PickAndPlace.Views
         private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
         private Properties.Settings _param = Properties.Settings.Default;
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public AppLogger Logger => AppLogger.Instance;
+
         protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
@@ -43,6 +48,25 @@ namespace PickAndPlace.Views
             InitializeComponent();
             _mainController = new MainController(this);
             DataContext = this;
+            Logger.Logs.CollectionChanged += Logs_CollectionChanged;
+        }
+        private void Logs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action !=
+                System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+                return;
+
+            if (LogListBox.Items.Count == 0)
+                return;
+
+            // Scroll sau khi UI render xong
+            LogListBox.Dispatcher.BeginInvoke(
+                new Action(() =>
+                {
+                    LogListBox.ScrollIntoView(
+                        LogListBox.Items[LogListBox.Items.Count - 1]);
+                }),
+                System.Windows.Threading.DispatcherPriority.Background);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -76,7 +100,27 @@ namespace PickAndPlace.Views
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
+            WaitingWindow wait = new WaitingWindow("Checking running conditions...\rKiểm tra điều kiện chạy");
+            bool startOK = false;
+            new Task(() =>
+            {
+                startOK = _mainController.Start();
+                wait.KillMe = true;
+            }).Start();
+            wait.ShowDialog();
 
+            if (startOK)
+            {
+                btnStart.IsEnabled = false;
+                btnStop.IsEnabled = true;
+                btnTest.IsEnabled = true;
+            }
+            else
+            {
+                btnStart.IsEnabled = true;
+                btnStop.IsEnabled = false;
+                btnTest.IsEnabled = false;
+            }
         }
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
@@ -126,6 +170,67 @@ namespace PickAndPlace.Views
                 AiStatus = resAI ? (int)(StatusState.Ok) : (int)(StatusState.Ng);
                 OnPropertyChanged(nameof(AiStatus));
             }));
+        }
+     
+        public bool ShowWarning(string content)
+        {
+            var res = false;
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                var box = new WarningWindow(content);
+                box.ShowDialog();
+                res = (bool)box.DialogResult;
+            }));
+            return res;
+        }
+        public void ShowError(string content)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                ErrorService.ShowError(content);
+            }));
+        }
+        public void ShowInfo(string content)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                var box = new InformationWindow(content);
+                box.ShowDialog();
+            }));
+        }
+
+        private void btnTest_Click(object sender, RoutedEventArgs e)
+        {
+            Task.Run(() =>
+            _mainController.ProcessImage());
+        }
+        public void UpdateImage(System.Drawing.Bitmap image)
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                if (image == null)
+                {
+                    imbImage.Source = null;
+                }
+                else if (imbImage.Source == null)
+                {
+                    imbImage.SourceFromBitmap = image;
+                    var scale = GetFittedZoomScale(imbImage, image.Width, image.Height);
+                    imbImage.SetZoomScale(scale);
+                }
+                else
+                {
+                    imbImage.SourceFromBitmap = image;
+                }
+            }));
+        }
+        private double GetFittedZoomScale(object imb, double imageWidth, double imageHeight)
+        {
+            var imageBox = imb as Heal.MyControl.ImageBox;
+            var imageBoxWidth = imageBox.ActualWidth;
+            var imageBoxHeight = imageBox.ActualHeight;
+            var scale = Math.Min(imageBoxWidth / imageWidth, imageBoxHeight / imageHeight);
+            return scale;
         }
     }
 }

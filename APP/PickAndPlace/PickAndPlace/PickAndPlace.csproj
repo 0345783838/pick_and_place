@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -153,9 +153,11 @@
     <Compile Include="Controller\MainController.cs" />
     <Compile Include="Controller\Robot\EpsonRobotClient.cs" />
     <Compile Include="Models\Calib2DResponse.cs" />
+    <Compile Include="Models\GetCoordResponse.cs" />
     <Compile Include="Models\LogItem.cs" />
     <Compile Include="Models\MyEnum.cs" />
     <Compile Include="Models\PairPoint.cs" />
+    <Compile Include="Services\ErrrorService.cs" />
     <Compile Include="Utils\BindingConverter.cs" />
     <Compile Include="Utils\Converter.cs" />
     <Compile Include="Utils\DateTime.cs" />
@@ -254,6 +256,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Resource Include="Resources\Icons\screenshot.png" />
+    <Resource Include="Resources\Icons\inbox.png" />
     <Resource Include="robot-arm.ico" />
     <Resource Include="Resources\Icons\moving.png" />
     <Resource Include="Resources\Icons\redo.png" />

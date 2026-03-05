@@ -40,7 +40,11 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
 
         public ObservableCollection<PairPoint> PairPoints { get; set; } = new ObservableCollection<PairPoint>();
         public bool CameraConnected { get; set; } = false;
-
+        public bool CanSelectPoint { get; set; } = false;
+        public bool CalibFinished { get; set; } = false;
+        public bool CanValidate { get; set; } = false;
+        public bool CanRemove => PairPoints.Count > 0;
+        public bool CanCalib=> PairPoints.Count >= 4;
         private PairPoint _selectedPairPoint;
 
         public PairPoint SelectedPairPoint
@@ -56,6 +60,7 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
             }
         }
 
+   
 
         CameraManager _cameraManager;
         LincolnCamera _cam;
@@ -67,6 +72,11 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
         {
             InitializeComponent();
             Init();
+            PairPoints.CollectionChanged += (s, e) =>
+            {
+                OnPropertyChanged(nameof(CanRemove));
+                OnPropertyChanged(nameof(CanCalib));
+            };
             DataContext = this;
         }
         private void Init()
@@ -82,32 +92,34 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
 
         private async void btnConnectCamera_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            //if (cbbCamSn.SelectedItem == null)
-            //{
-            //    var error = new ErrorWindow("Please choose a camera!\rHãy chọn camera!");
-            //    error.ShowDialog();
-            //    return;
-            //}
+            if (cbbCamSn.SelectedItem == null)
+            {
+                var error = new ErrorWindow("Please choose a camera!\rHãy chọn camera!");
+                error.ShowDialog();
+                return;
+            }
 
-            //string camSn = cbbCamSn.SelectedValue.ToString();
+            string camSn = cbbCamSn.SelectedValue.ToString();
 
-            string camSn = "aaaa";
+            //string camSn = "aaaa";
             try
             {
                 await Task.Run(() =>
                 {
-                    // Debug
-                    CameraConnected = true;
-                    OnPropertyChanged(nameof(CameraConnected));
-
-                    //_cam = _cameraManager.GetCamera(camSn) as LincolnCamera;
-
-                    //if (!_cam.IsOpen())
-                    //    throw new Exception($"Cannot open camera {camSn}!");
-
-                    //_cam.Start();
+                    //// Debug
                     //CameraConnected = true;
                     //OnPropertyChanged(nameof(CameraConnected));
+                    if (_cam != null && _cam.IsOpen())
+                        return;
+
+                    _cam = _cameraManager.GetCamera(camSn) as LincolnCamera;
+
+                    if (!_cam.IsOpen())
+                        throw new Exception($"Cannot open camera {camSn}!");
+
+                    _cam.Start();
+                    CameraConnected = true;
+                    OnPropertyChanged(nameof(CameraConnected));
                 });
             }
             catch (Exception ex)
@@ -179,10 +191,12 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
         }
         private void btnCaptureImage_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            //var bitmap = _cam.GetBitmap();
-            System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(@"D:\huynhvc\OTHERS\pick_and_place\APP\SERVICE\test\chessboard_images\Image_20260304170350160.bmp");
+            var bitmap = _cam.GetBitmap();
+            //System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(@"F:\working\pick_and_place\pick_and_place\Data\Image_20260304170350160.bmp");
             _curImage = new Image<Bgr, byte>(bitmap);
             UpdateImage(bitmap);
+            CanSelectPoint = true;
+            OnPropertyChanged(nameof(CanSelectPoint));
         }
 
         private void btnLoadIntrinsicCalib_MouseDown(object sender, MouseButtonEventArgs e)
@@ -306,11 +320,22 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
         private void btnCalibrate_MouseDown(object sender, MouseButtonEventArgs e)
         {
             // Check if PairPoints >= 4
+            if (4 <= PairPoints.Count && PairPoints.Count < 9)
+            {
+                var waining = new WarningWindow("Suggested to have at least 9 pair points, still process?\rKết quả tốt hơn với it nhất 9 cặp điểm, tiếp tục tiến hành?");
+                bool? answer = waining.ShowDialog();
+                if (!(bool)answer)
+                    return;
+            }
             var res = APICommunication.Calibration2D(_param.ApiUrlAi, PairPoints);
             if (res!=null && res.Result)
             {
                 var info = new InformationWindow("Calibration successfully!\rCalibration thành công!");
                 info.ShowDialog();
+                CalibFinished = true;
+                CanValidate = true;
+                OnPropertyChanged(nameof(CalibFinished));
+                OnPropertyChanged(nameof(CanValidate));
             }
             else
             {
@@ -384,6 +409,7 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
             {
                 _cam.Stop();
                 _cam.Close();
+                _logger.Debug("Camera closed!");
             }
         }
 
@@ -444,6 +470,8 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
             {
                 var info = new InformationWindow("Load existing calibration result successfully!\rLoad kết quả calibration cũ thành công!");
                 info.ShowDialog();
+                CanValidate = true;
+                OnPropertyChanged(nameof(CanValidate));
             }
             else
             {

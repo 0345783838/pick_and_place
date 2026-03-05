@@ -37,9 +37,9 @@
             </Style>
         </Grid.Resources>
         <Grid.RowDefinitions>
-            <RowDefinition Height="229*" />
-            <RowDefinition Height="159*" />
-            <RowDefinition Height="54*" />
+            <RowDefinition Height="97*" />
+            <RowDefinition Height="97*" />
+            <RowDefinition Height="27*" />
         </Grid.RowDefinitions>
         <GroupBox
             Grid.Row="0"

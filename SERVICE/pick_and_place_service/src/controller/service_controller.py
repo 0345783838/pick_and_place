@@ -30,11 +30,19 @@ class FilePath(BaseModel):
     path: str
 
 
+class PcbSize(BaseModel):
+    width: float
+    height: float
+
+
 @robot_router.post(path='/cal_robot_coord')
-def cal_robot_coord(image: UploadFile = File(...)):
-    time_st = time.time()
+def cal_robot_coord(image: UploadFile = File(...), pcb_size: str = Form(...)):
     if not image.file:
         raise HTTPException(status_code=400, detail="Invalid input")
+
+    pcb_size_json = PcbSize(**json.loads(pcb_size))
+    pcb_width = pcb_size_json.width
+    pcb_height = pcb_size_json.height
 
     img_str = image.file.read()
     if img_str is None or img_str == b'':
@@ -48,7 +56,7 @@ def cal_robot_coord(image: UploadFile = File(...)):
     except Exception as ex:
         # Cannot decode image
         raise HTTPException(status_code=400, detail="Invalid input")
-    res = cal_robot_coord_service.cal_robot_coord(img)
+    res = cal_robot_coord_service.cal_robot_coord(img, pcb_width, pcb_height)
     return res
 
 
@@ -81,7 +89,7 @@ def check_service_status():
     return {"status": "running"}
 
 
-@robot_router.get("/check_calib_ready_status")
+@robot_router.post("/check_calib_ready_status")
 def check_calib_ready_status():
     res = calib_2d_robot.check_calib_ready()
     return res
