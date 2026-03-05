@@ -106,5 +106,89 @@ namespace PickAndPlace.Properties {
                 this["SavePath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("check_service_status")]
+        public string EndPointCheckStatus {
+            get {
+                return ((string)(this["EndPointCheckStatus"]));
+            }
+            set {
+                this["EndPointCheckStatus"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("http://127.0.0.1:8386/ai")]
+        public string ApiUrlAi {
+            get {
+                return ((string)(this["ApiUrlAi"]));
+            }
+            set {
+                this["ApiUrlAi"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("calib_2d")]
+        public string EndPointCalib2d {
+            get {
+                return ((string)(this["EndPointCalib2d"]));
+            }
+            set {
+                this["EndPointCalib2d"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("transform_pixel_to_robot")]
+        public string EndPointTransform {
+            get {
+                return ((string)(this["EndPointTransform"]));
+            }
+            set {
+                this["EndPointTransform"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("save_calib_matrix")]
+        public string EndPointSaveMatrix {
+            get {
+                return ((string)(this["EndPointSaveMatrix"]));
+            }
+            set {
+                this["EndPointSaveMatrix"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("load_calib_matrix")]
+        public string EndPointLoadMatrix {
+            get {
+                return ((string)(this["EndPointLoadMatrix"]));
+            }
+            set {
+                this["EndPointLoadMatrix"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("check_calib_ready_status")]
+        public string EndPointCheckCalibReady {
+            get {
+                return ((string)(this["EndPointCheckCalibReady"]));
+            }
+            set {
+                this["EndPointCheckCalibReady"] = value;
+            }
+        }
     }
 }

@@ -1,10 +1,14 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Structure;
+using PickAndPlace.Controllers.APIs;
 using PickAndPlace.Controllers.Camera;
+using PickAndPlace.Models;
 using PickAndPlace.Utils;
 using PickAndPlace.Views.UtilitiesWindows;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -24,20 +28,46 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
     /// <summary>
     /// Interaction logic for EyeHand2dCalibWindow.xaml
     /// </summary>
-    public partial class EyeHand2dCalibWindow : Window
+    public partial class EyeHand2dCalibWindow : Window, INotifyPropertyChanged
     {
+        private static NLog.Logger _logger = NLog.LogManager.GetCurrentClassLogger();
+        Properties.Settings _param = Properties.Settings.Default;
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public ObservableCollection<PairPoint> PairPoints { get; set; } = new ObservableCollection<PairPoint>();
+        public bool CameraConnected { get; set; } = false;
+
+        private PairPoint _selectedPairPoint;
+
+        public PairPoint SelectedPairPoint
+        {
+            get => _selectedPairPoint;
+            set
+            {
+                if (_selectedPairPoint != value)
+                {
+                    _selectedPairPoint = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+
         CameraManager _cameraManager;
         LincolnCamera _cam;
-
-        private System.Windows.Point _start;
-        private System.Windows.Point _origin;
         private bool _isSelecting;
+        private bool _isValidating;
         private Image<Bgr, byte> _curImage;
 
         public EyeHand2dCalibWindow()
         {
             InitializeComponent();
             Init();
+            DataContext = this;
         }
         private void Init()
         {
@@ -50,30 +80,41 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
             }
         }
 
-        private void btnConnectCamera_MouseDown(object sender, MouseButtonEventArgs e)
+        private async void btnConnectCamera_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (cbbCamSn.SelectedItem == null)
-            {
-                var error = new ErrorWindow("Please choose a camera!\rHãy chọn camera!");
-                error.ShowDialog();
-                return;
-            }
+            //if (cbbCamSn.SelectedItem == null)
+            //{
+            //    var error = new ErrorWindow("Please choose a camera!\rHãy chọn camera!");
+            //    error.ShowDialog();
+            //    return;
+            //}
 
-            _cam = _cameraManager.GetCamera(cbbCamSn.SelectedValue.ToString()) as LincolnCamera;
-            if (!_cam.IsOpen())
-            {
-                var error = new ErrorWindow($"Cannot open camera {cbbCamSn.SelectedValue.ToString()}!\rKhông mở được camera {cbbCamSn.SelectedValue.ToString()}!");
-                error.ShowDialog();
-                return;
-            }
-            _cam.Start();
-            //var bitmap = _cam.GetBitmap();
-            System.Drawing.Bitmap bitmap = new  System.Drawing.Bitmap(@"F:\working\pick_and_place\pick_and_place\Data\Image_20260304170350160.bmp");
-            _curImage = new Image<Bgr, byte>(bitmap);
+            //string camSn = cbbCamSn.SelectedValue.ToString();
 
-            UpdateImage(bitmap);
-            _cam.Stop();
-            _cam.Close();
+            string camSn = "aaaa";
+            try
+            {
+                await Task.Run(() =>
+                {
+                    // Debug
+                    CameraConnected = true;
+                    OnPropertyChanged(nameof(CameraConnected));
+
+                    //_cam = _cameraManager.GetCamera(camSn) as LincolnCamera;
+
+                    //if (!_cam.IsOpen())
+                    //    throw new Exception($"Cannot open camera {camSn}!");
+
+                    //_cam.Start();
+                    //CameraConnected = true;
+                    //OnPropertyChanged(nameof(CameraConnected));
+                });
+            }
+            catch (Exception ex)
+            {
+                var error = new ErrorWindow($"{ex.Message}\rKhông mở được camera {camSn}!");
+                error.ShowDialog();
+            }
         }
         private void UpdateImage(System.Drawing.Bitmap image)
         {
@@ -100,9 +141,48 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
             var scale = Math.Min(imageBoxWidth / imageWidth, imageBoxHeight / imageHeight);
             return scale;
         }
+        private void UpdatePixelCoord(double x, double y)
+        {
+            this.Dispatcher.Invoke(() =>
+            { 
+                tbImageX.Text = x.ToString("0.00");
+                tbImageY.Text = y.ToString("0.00");
+            });
+
+        }
+        private void UpdateRobotCoord(double x, double y)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                tbRobotX.Text = x.ToString("0.00");
+                tbRobotY.Text = y.ToString("0.00");
+            });
+
+        }
+        private void UpdateValidationPixelCoord(double x, double y)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                tbValidImageX.Text = x.ToString("0.00");
+                tbValidImageY.Text = y.ToString("0.00");
+            });
+
+        }
+        private void UpdateValidationRobotCoord(double x, double y)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                tbValidRobotX.Text = x.ToString("0.00");
+                tbValidRobotY.Text = y.ToString("0.00");
+            });
+
+        }
         private void btnCaptureImage_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            //var bitmap = _cam.GetBitmap();
+            System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(@"D:\huynhvc\OTHERS\pick_and_place\APP\SERVICE\test\chessboard_images\Image_20260304170350160.bmp");
+            _curImage = new Image<Bgr, byte>(bitmap);
+            UpdateImage(bitmap);
         }
 
         private void btnLoadIntrinsicCalib_MouseDown(object sender, MouseButtonEventArgs e)
@@ -112,49 +192,131 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
 
         private void btnSelectPoint_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (_curImage == null) 
+            { 
+                var error = new ErrorWindow("Please capture an image!\rHãy chụp 1 ảnh camera!");
+                error.ShowDialog();
+                return;
+            }
+            _isValidating = false;
+            btnSelectValidPoint.StartColor = System.Windows.Media.Color.FromRgb(0xC8, 0xAA, 0xAA);
+            btnSelectValidPoint.EndColor = System.Windows.Media.Color.FromRgb(0x1C, 0x4D, 0x8D);
+            UpdateImage(_curImage.Bitmap);
             if (!_isSelecting)
             {
                 imbImage.Cursor = Cursors.Cross;
                 Cursor = Cursors.Cross;
+                btnSelectPoint.StartColor = Colors.DarkGreen;
+                btnSelectPoint.EndColor = Colors.DarkGreen;
                 _isSelecting = true;
             }
             else
             {
                 imbImage.Cursor = Cursors.Arrow;
                 Cursor = Cursors.Arrow;
+                btnSelectPoint.StartColor = System.Windows.Media.Color.FromRgb(0xC8, 0xAA, 0xAA);
+                btnSelectPoint.EndColor =  System.Windows.Media.Color.FromRgb(0x1C, 0x4D, 0x8D);
                 _isSelecting = false;
             }
-            
         }
 
         private void btnGetRobotCoord_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            // Get robot coord via TCP/IP
+            Random rnd = new Random();
+            int number1 = rnd.Next(1, 1000); // 1 → 999
+            int number2 = rnd.Next(1, 1000); // 1 → 999
+            UpdateRobotCoord(number1, number2);
         }
 
         private void btnResetPoint_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            this.Dispatcher.Invoke(() =>
+            {
+                tbImageX.Text = "";
+                tbImageY.Text = "";
+                tbRobotX.Text = "";
+                tbRobotY.Text = "";
 
+                UpdateImage(_curImage.Bitmap);
+            });
         }
 
         private void btnAddPoint_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            // Check varlid pair point
+            if (tbImageX.Text == "" || tbImageY.Text == "" || tbRobotX.Text == "" || tbRobotY.Text == "")
+            { 
+                var error = new ErrorWindow("Please select/get a pair of pixel point and robot coordinate!\rHãy chọn 1 cặp pixel point với 1 robot coordinate!");
+                error.ShowDialog();
+                return;
+            }
 
+            // Check if ImagePixel or RobotCoord point exists in PairPoints
+            foreach (PairPoint point in PairPoints)
+            {
+                if (point.ImagePixel.Item1 == double.Parse(tbImageX.Text) && point.ImagePixel.Item2 == double.Parse(tbImageY.Text))
+                {
+                    var error = new ErrorWindow("ImagePixel point already exists!\rĐiểm ảnh pixel đã tồn tại!");
+                    error.ShowDialog();
+                    return;
+                }
+                if (point.RobotCoord.Item1 == double.Parse(tbRobotX.Text) && point.RobotCoord.Item2 == double.Parse(tbRobotY.Text))
+                {
+                    var error = new ErrorWindow("RobotCoord point already exists!\rTọa độ robot đã tồn tại!");
+                    error.ShowDialog();
+                    return;
+                }
+            }
+
+            // Add point
+            Tuple<double, double> imagePixel = new Tuple<double, double>(double.Parse(tbImageX.Text), double.Parse(tbImageY.Text));
+            Tuple<double, double> robotCoord = new Tuple<double, double>(double.Parse(tbRobotX.Text), double.Parse(tbRobotY.Text));
+            PairPoint pairPoint = new PairPoint(PairPoints.Count + 1, imagePixel, robotCoord);
+
+            PairPoints.Add(pairPoint);
         }
 
         private void btnRemoveRow_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            var warning = new WarningWindow("Are you sure to remove this pair point?\rBạn có muốn xóa cặp điểm này?");
+            var res = warning.ShowDialog();
+            if (!(bool)res)
+                return;
+            PairPoints.Remove(SelectedPairPoint);
+            ReUpdateIndex();
+        }
+        private void ReUpdateIndex()
+        {
+            for (var i = 0; i < PairPoints.Count; i++)
+            {
+                PairPoints[i].Id = i + 1;
+            }
         }
 
         private void btnClearAll_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            var warning = new WarningWindow("Are you sure to clear this table data?\rBạn có muốn xóa dữ liệu bảng này?");
+            var res = warning.ShowDialog();
+            if (!(bool)res)
+                return;
+            PairPoints.Clear();
         }
 
         private void btnCalibrate_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            // Check if PairPoints >= 4
+            var res = APICommunication.Calibration2D(_param.ApiUrlAi, PairPoints);
+            if (res!=null && res.Result)
+            {
+                var info = new InformationWindow("Calibration successfully!\rCalibration thành công!");
+                info.ShowDialog();
+            }
+            else
+            {
+                var error = new ErrorWindow("Calibration failed, check your data!\rCalibration thất bại, kiểm tra lại dữ liệu!");
+                error.ShowDialog();
+            }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -164,7 +326,14 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
 
         private void imbImage_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (!_isSelecting)
+            if (imbImage == null)
+                return;
+            if (e.ClickCount == 2)
+            {
+                ResetView();
+            }
+
+            if (!_isSelecting && !_isValidating)
                 return;
 
             var control = sender as Heal.MyControl.ImageBox;
@@ -175,13 +344,112 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
             var clickPosition = new System.Windows.Point(p.X / scale - x / scale, p.Y / scale - y / scale);
 
             Console.WriteLine("X: " + clickPosition.X + " Y: " + clickPosition.Y);
-
-            using (var image = _curImage.Clone())
+            if (_isSelecting)
             {
-                CvInvoke.Circle(image, new System.Drawing.Point((int)clickPosition.X, (int)clickPosition.Y), 2, new MCvScalar(0, 0, 255), -1);
-                UpdateImage(image.Bitmap);
+                UpdatePixelCoord(clickPosition.X, clickPosition.Y);
+                using (var image = _curImage.Clone())
+                {
+                    CvInvoke.Circle(image, new System.Drawing.Point((int)clickPosition.X, (int)clickPosition.Y), 2, new MCvScalar(0, 0, 255), -1);
+                    UpdateImage(image.Bitmap);
+                }
             }
-           
+            else if (_isValidating)
+            {
+                UpdateValidationPixelCoord(clickPosition.X, clickPosition.Y);
+                using (var image = _curImage.Clone())
+                {
+                    CvInvoke.Circle(image, new System.Drawing.Point((int)clickPosition.X, (int)clickPosition.Y), 2, new MCvScalar(0, 255, 0), -1);
+                    UpdateImage(image.Bitmap);
+                }
+
+                var res = APICommunication.TransformPoint(_param.ApiUrlAi, clickPosition.X, clickPosition.Y);
+                UpdateValidationRobotCoord((double)res.RobotX, (double)res.RobotY);
+
+            }
+        }
+
+        private void ResetView()
+        {
+            if (!object.ReferenceEquals(imbImage.Source, null))
+            {
+                var scaleMap = GetFittedZoomScale(imbImage, imbImage.Source.Width, imbImage.Source.Height);
+                imbImage.SetZoomScale(scaleMap);
+                imbImage.GoToXY(0, 0);
+            }
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            if (_cam != null && _cam.IsOpen())
+            {
+                _cam.Stop();
+                _cam.Close();
+            }
+        }
+
+        private void btnSelectValidPoint_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (_curImage == null)
+            {
+                var error = new ErrorWindow("Please capture an image!\rHãy chụp 1 ảnh camera!");
+                error.ShowDialog();
+                return;
+            }
+            _isSelecting = false;
+            btnSelectPoint.StartColor = System.Windows.Media.Color.FromRgb(0xC8, 0xAA, 0xAA);
+            btnSelectPoint.EndColor = System.Windows.Media.Color.FromRgb(0x1C, 0x4D, 0x8D);
+            UpdateImage(_curImage.Bitmap);
+            if (!_isValidating)
+            {
+                imbImage.Cursor = Cursors.Cross;
+                Cursor = Cursors.Cross;
+                btnSelectValidPoint.StartColor = Colors.DarkGreen;
+                btnSelectValidPoint.EndColor = Colors.DarkGreen;
+                _isValidating = true;
+            }
+            else
+            {
+                imbImage.Cursor = Cursors.Arrow;
+                Cursor = Cursors.Arrow;
+                btnSelectValidPoint.StartColor = System.Windows.Media.Color.FromRgb(0xC8, 0xAA, 0xAA);
+                btnSelectValidPoint.EndColor = System.Windows.Media.Color.FromRgb(0x1C, 0x4D, 0x8D);
+                _isValidating = false;
+            }
+        }
+
+        private void btnMoveRobotCoord_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        private void btnSaveMatrix_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var res = APICommunication.SaveMatrix(_param.ApiUrlAi);
+            if (res != null && res.Result)
+            {
+                var info = new InformationWindow("Save calibration result successfully!\rLưu kết quả calibration thành công!");
+                info.ShowDialog();
+            }
+            else
+            {
+                var error = new ErrorWindow("Save calibration result failed!\rLưu kết quả calibration thất bại!");
+                error.ShowDialog();
+            }
+        }
+
+        private void btnLoadExistingMatrix_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var res = APICommunication.LoadExistingMatrix(_param.ApiUrlAi);
+            if (res!=null && res.Result)
+            {
+                var info = new InformationWindow("Load existing calibration result successfully!\rLoad kết quả calibration cũ thành công!");
+                info.ShowDialog();
+            }
+            else
+            {
+                var error = new ErrorWindow("Not found existing calibration result!\rKhông tìm thấy kết quả calibration cũ!");
+                error.ShowDialog();
+            }
         }
         //private void GetDisplayedImageInfo(out double displayedW,
         //                           out double displayedH,

@@ -7,15 +7,20 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:myControl="clr-namespace:Heal.MyControl;assembly=ImageCtlWPF"
     xmlns:uc="clr-namespace:PickAndPlace.Resources.Styles"
+    xmlns:utils="clr-namespace:PickAndPlace.Utils"
     Title="Hand-Eye 2D Calibration"
     Width="1300"
     Height="768"
+    Closing="Window_Closing"
     Icon="/Resources/Icons/robot-arm.png"
     Loaded="Window_Loaded"
     ResizeMode="NoResize"
     Style="{StaticResource WindowStyle}"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
+    <Window.Resources>
+        <utils:TupleToStringConverter x:Key="TupleToStringConverter" />
+    </Window.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition />
@@ -42,8 +47,8 @@
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="275*" />
-                            <ColumnDefinition Width="414*" />
-                            <ColumnDefinition Width="124*" />
+                            <ColumnDefinition Width="426*" />
+                            <ColumnDefinition Width="112*" />
                         </Grid.ColumnDefinitions>
                         <Grid Grid.Column="0">
                             <uc:CustomButton
@@ -62,9 +67,9 @@
                                 Value="FILE" />
                         </Grid>
                         <Grid Grid.Column="1">
-                            <StackPanel Margin="5" VerticalAlignment="Center">
+                            <StackPanel Margin="5,10,5,5" VerticalAlignment="Center">
                                 <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
-                                    <StackPanel Margin="5,-10,0,0" VerticalAlignment="Center">
+                                    <StackPanel Margin="5,-5,0,0" VerticalAlignment="Center">
                                         <Label
                                             Margin="0,-10,0,0"
                                             HorizontalAlignment="Center"
@@ -331,30 +336,28 @@
                                  RenderTransformOrigin="0.5,0.5"
                                  Stretch="None">
 
-                 
+
                             </Image>
                             <Canvas x:Name="overlayCanvas"
                                      IsHitTestVisible="False">
 
                             </Canvas>
                         </Grid>
-                     
-                         
-                    </Border>-->
-                    <myControl:ImageBox x:Name="imbImage"
-                                        Background="DarkGray"
-                                        PreviewMouseDown="imbImage_PreviewMouseDown">
-                        
-                    </myControl:ImageBox>
-                       
 
+
+                    </Border>-->
+                    <myControl:ImageBox
+                        x:Name="imbImage"
+                        Background="DarkGray"
+                        PreviewMouseDown="imbImage_PreviewMouseDown" />
                 </GroupBox>
             </Grid>
         </Grid>
         <Grid Grid.Column="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="170" />
-                <RowDefinition Height="216" />
+                <RowDefinition Height="127" />
+                <RowDefinition Height="199" />
+                <RowDefinition Height="235" />
                 <RowDefinition />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
@@ -368,43 +371,44 @@
                             <ComboBox
                                 x:Name="cbbCamSn"
                                 Width="120"
-                                Height="40"
+                                Height="30"
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center"
                                 FontSize="15" />
-                            <uc:CustomButton
+                            <uc:CustomButton2
                                 x:Name="btnConnectCamera"
-                                Title="Connect"
-                                Width="150"
-                                Height="80"
+                                Title="Connect&#x0A;Camera"
+                                Width="100"
+                                Height="50"
                                 Margin="5,5,10,5"
                                 EndColor="#b6c0c5"
-                                IconHeight="45"
-                                IconWidth="45"
-                                IsEnabled="{Binding ConfirmEnable}"
+                                FontSize="12"
+                                IconHeight="27"
+                                IconWidth="30"
+                                IsEnabled="{Binding CanFinish}"
                                 LeftIcon="/Resources/Icons/camera-connect.png"
                                 MouseDown="btnConnectCamera_MouseDown"
-                                StartColor="#18a5a7"
-                                Value="CAM" />
+                                StartColor="#18a5a7" />
                         </StackPanel>
                         <Border
                             Width="1"
-                            Margin="0,5,0,5"
+                            Margin="20,5,0,5"
                             Background="DarkGray" />
                         <uc:CustomButton
                             x:Name="btnCaptureImage"
                             Title="Capture"
-                            Width="200"
-                            Height="100"
+                            Width="180"
+                            Height="80"
                             Margin="15,5,5,5"
                             EndColor="#57370D"
                             IconHeight="60"
                             IconWidth="60"
-                            IsEnabled="{Binding ConfirmEnable}"
+                            IsEnabled="{Binding CameraConnected}"
                             LeftIcon="/Resources/Icons/capture-image.png"
                             MouseDown="btnCaptureImage_MouseDown"
                             StartColor="#ffe998"
                             Value="IMAGE" />
+
                     </StackPanel>
                 </GroupBox>
             </Grid>
@@ -416,17 +420,17 @@
                     Header="Matching Point">
                     <Grid>
                         <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition Height="5" />
-                            <RowDefinition />
+                            <RowDefinition Height="60*" />
+                            <RowDefinition Height="53*" />
+                            <RowDefinition Height="10" />
+                            <RowDefinition Height="54.794" />
                         </Grid.RowDefinitions>
-                        <Grid Grid.Row="2">
+                        <Grid Grid.Row="2" Margin="0,1,0,1">
                             <Separator Margin="40,0,40,0" />
                         </Grid>
                         <Grid Grid.Row="0">
                             <StackPanel
-                                Margin="5,5,5,5"
+                                Margin="5,0,5,5"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Orientation="Horizontal">
@@ -449,7 +453,7 @@
                                         FontSize="12" />
                                     <TextBox
                                         Name="tbImageX"
-                                        Width="50"
+                                        Width="65"
                                         Height="25"
                                         Margin="5,-5,0,0"
                                         HorizontalContentAlignment="Center"
@@ -457,7 +461,6 @@
                                         BorderBrush="DarkGray"
                                         FontSize="14"
                                         FontWeight="Bold"
-                                        Foreground="Green"
                                         IsReadOnly="True" />
                                 </StackPanel>
                                 <StackPanel Margin="25,-10,0,0" VerticalAlignment="Center">
@@ -469,7 +472,7 @@
                                         FontSize="12" />
                                     <TextBox
                                         Name="tbImageY"
-                                        Width="50"
+                                        Width="65"
                                         Height="25"
                                         Margin="5,-5,0,0"
                                         HorizontalContentAlignment="Center"
@@ -477,7 +480,6 @@
                                         BorderBrush="DarkGray"
                                         FontSize="14"
                                         FontWeight="Bold"
-                                        Foreground="Green"
                                         IsReadOnly="True" />
                                 </StackPanel>
                                 <uc:CustomButton2
@@ -496,9 +498,9 @@
                                     StartColor="#C8AAAA" />
                             </StackPanel>
                         </Grid>
-                        <Grid Grid.Row="1">
+                        <Grid Grid.Row="1" Margin="0,1,0,1">
                             <StackPanel
-                                Margin="5,5,5,5"
+                                Margin="5,-10,5,-5"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Orientation="Horizontal">
@@ -521,7 +523,7 @@
                                         FontSize="12" />
                                     <TextBox
                                         Name="tbRobotX"
-                                        Width="50"
+                                        Width="65"
                                         Height="25"
                                         Margin="5,-5,0,0"
                                         HorizontalContentAlignment="Center"
@@ -529,8 +531,7 @@
                                         BorderBrush="DarkGray"
                                         FontSize="14"
                                         FontWeight="Bold"
-                                        Foreground="Green"
-                                        IsReadOnly="True" />
+                                        IsReadOnly="False" />
                                 </StackPanel>
                                 <StackPanel Margin="25,-10,0,0" VerticalAlignment="Center">
                                     <Label
@@ -541,7 +542,7 @@
                                         FontSize="12" />
                                     <TextBox
                                         Name="tbRobotY"
-                                        Width="50"
+                                        Width="65"
                                         Height="25"
                                         Margin="5,-5,0,0"
                                         HorizontalContentAlignment="Center"
@@ -549,8 +550,7 @@
                                         BorderBrush="DarkGray"
                                         FontSize="14"
                                         FontWeight="Bold"
-                                        Foreground="Green"
-                                        IsReadOnly="True" />
+                                        IsReadOnly="False" />
                                 </StackPanel>
                                 <uc:CustomButton2
                                     x:Name="btnGetRobotCoord"
@@ -574,7 +574,7 @@
                                     x:Name="btnResetPoint"
                                     Title="Reset&#x0A;Point"
                                     Width="100"
-                                    Height="50"
+                                    Height="40"
                                     Margin="15,5,5,5"
                                     EndColor="#87BAC3"
                                     FontSize="12"
@@ -588,7 +588,7 @@
                                     x:Name="btnAddPoint"
                                     Title="Add&#x0A;Point"
                                     Width="100"
-                                    Height="50"
+                                    Height="40"
                                     Margin="15,5,5,5"
                                     EndColor="#75B06F"
                                     FontSize="12"
@@ -612,7 +612,7 @@
                     <Grid>
                         <Grid.RowDefinitions>
                             <RowDefinition />
-                            <RowDefinition Height="80" />
+                            <RowDefinition Height="55.394" />
                         </Grid.RowDefinitions>
                         <Grid Grid.Row="0">
                             <DataGrid
@@ -623,9 +623,9 @@
                                 EnableColumnVirtualization="True"
                                 EnableRowVirtualization="True"
                                 IsReadOnly="True"
-                                ItemsSource="{Binding PointsList}"
+                                ItemsSource="{Binding PairPoints}"
                                 RowHeight="35"
-                                SelectedItem="{Binding SelectedImageInfo}"
+                                SelectedItem="{Binding SelectedPairPoint}"
                                 SelectionMode="Single"
                                 VirtualizingPanel.IsVirtualizing="True">
                                 <DataGrid.ColumnHeaderStyle>
@@ -640,10 +640,10 @@
                                     <DataGridTemplateColumn Width="30" Header="ID">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <!--<TextBlock
+                                                <TextBlock
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    Text="{Binding ID}" />-->
+                                                    Text="{Binding Id}" />
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -652,24 +652,22 @@
                                     <DataGridTemplateColumn Width="*" Header="Camera Point">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <!--<TextBlock
-                                                    HorizontalAlignment="Left"
+                                                <TextBlock
+                                                    HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    Foreground="{Binding Status, Converter={StaticResource StatusConverter}}"
-                                                    Text="{Binding FilePath, Converter={StaticResource FileNameConverterMain}}"
-                                                    TextAlignment="Left" />-->
+                                                    Text="{Binding ImagePixel, Converter={StaticResource TupleToStringConverter}}"
+                                                    TextAlignment="Center" />
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
                                     <DataGridTemplateColumn Width="*" Header="Robot Point">
                                         <DataGridTemplateColumn.CellTemplate>
                                             <DataTemplate>
-                                                <!--<TextBlock
-                                                    HorizontalAlignment="Left"
+                                                <TextBlock
+                                                    HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
-                                                    Foreground="{Binding Status, Converter={StaticResource StatusConverter}}"
-                                                    Text="{Binding FilePath, Converter={StaticResource FileNameConverterMain}}"
-                                                    TextAlignment="Left" />-->
+                                                    Text="{Binding RobotCoord, Converter={StaticResource TupleToStringConverter}}"
+                                                    TextAlignment="Center" />
                                             </DataTemplate>
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
@@ -677,12 +675,15 @@
                             </DataGrid>
                         </Grid>
                         <Grid Grid.Row="1">
-                            <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                            <StackPanel
+                                Margin="0,-5,0,0"
+                                HorizontalAlignment="Center"
+                                Orientation="Horizontal">
                                 <uc:CustomButton2
                                     x:Name="btnRemoveRow"
                                     Title="Remove&#x0A;Row"
                                     Width="100"
-                                    Height="60"
+                                    Height="50"
                                     Margin="5,5,5,5"
                                     EndColor="#EEB87D"
                                     FontSize="12"
@@ -696,12 +697,12 @@
                                     x:Name="btnClearAll"
                                     Title="Clear&#x0A;All"
                                     Width="100"
-                                    Height="60"
+                                    Height="50"
                                     Margin="15,5,5,5"
                                     EndColor="#F07470 "
                                     FontSize="12"
-                                    IconHeight="40"
-                                    IconWidth="35"
+                                    IconHeight="35"
+                                    IconWidth="30"
                                     IsEnabled="{Binding CanFinish}"
                                     LeftIcon="/Resources/Icons/clear.png"
                                     MouseDown="btnClearAll_MouseDown"
@@ -710,7 +711,7 @@
                                     x:Name="btnCalibrate"
                                     Title="Process&#x0A;Calib"
                                     Width="100"
-                                    Height="60"
+                                    Height="50"
                                     Margin="15,5,5,5"
                                     EndColor="#1e5b53"
                                     FontSize="12"
@@ -725,7 +726,202 @@
                     </Grid>
                 </GroupBox>
             </Grid>
-        </Grid>
+            <Grid Grid.Row="3" Margin="0,4,0,0">
+                <GroupBox
+                    Margin="5"
+                    BorderBrush="Gray"
+                    BorderThickness="1"
+                    Header="Validation">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="1*" />
+                            <RowDefinition Height="45" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0">
+                            <StackPanel
+                                Margin="5,0,5,5"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                                <Label
+                                    VerticalAlignment="Center"
+                                    Content="IMAGE"
+                                    FontSize="13"
+                                    FontWeight="Bold" />
+                                <Border
+                                    Width="1"
+                                    Height="50"
+                                    Margin="20,5,0,5"
+                                    Background="DarkGray" />
+                                <StackPanel Margin="30,-10,0,0" VerticalAlignment="Center">
+                                    <Label
+                                        Margin="0,-10,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Content="X"
+                                        FontSize="12" />
+                                    <TextBox
+                                        Name="tbValidImageX"
+                                        Width="65"
+                                        Height="25"
+                                        Margin="5,-5,0,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        BorderBrush="DarkGray"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        IsReadOnly="True" />
+                                </StackPanel>
+                                <StackPanel Margin="25,-10,0,0" VerticalAlignment="Center">
+                                    <Label
+                                        Margin="0,-10,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Content="Y"
+                                        FontSize="12" />
+                                    <TextBox
+                                        Name="tbValidImageY"
+                                        Width="65"
+                                        Height="25"
+                                        Margin="5,-5,0,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        BorderBrush="DarkGray"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        IsReadOnly="True" />
+                                </StackPanel>
+                                <uc:CustomButton2
+                                    x:Name="btnSelectValidPoint"
+                                    Title="Select&#x0A;Point"
+                                    Width="110"
+                                    Height="37"
+                                    Margin="35,0,5,5"
+                                    EndColor="#1C4D8D"
+                                    FontSize="12"
+                                    IconHeight="27"
+                                    IconWidth="30"
+                                    IsEnabled="{Binding CanFinish}"
+                                    LeftIcon="/Resources/Icons/target.png"
+                                    MouseDown="btnSelectValidPoint_MouseDown"
+                                    StartColor="#C8AAAA" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Grid.Row="1" Margin="0,1,0,1">
+                            <StackPanel
+                                Margin="5,-5,5,0"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Orientation="Horizontal">
+                                <Label
+                                    VerticalAlignment="Center"
+                                    Content="ROBOT"
+                                    FontSize="13"
+                                    FontWeight="Bold" />
+                                <Border
+                                    Width="1"
+                                    Height="50"
+                                    Margin="20,5,0,5"
+                                    Background="DarkGray" />
+                                <StackPanel Margin="30,-10,0,0" VerticalAlignment="Center">
+                                    <Label
+                                        Margin="0,-10,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Content="X"
+                                        FontSize="12" />
+                                    <TextBox
+                                        Name="tbValidRobotX"
+                                        Width="65"
+                                        Height="25"
+                                        Margin="5,-5,0,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Background="DarkGray"
+                                        BorderBrush="DarkGray"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        Foreground="Green"
+                                        IsReadOnly="False" />
+                                </StackPanel>
+                                <StackPanel Margin="25,-10,0,0" VerticalAlignment="Center">
+                                    <Label
+                                        Margin="0,-10,0,0"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Content="Y"
+                                        FontSize="12" />
+                                    <TextBox
+                                        Name="tbValidRobotY"
+                                        Width="65"
+                                        Height="25"
+                                        Margin="5,-5,0,0"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Background="DarkGray"
+                                        BorderBrush="DarkGray"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        Foreground="Green"
+                                        IsReadOnly="False" />
+                                </StackPanel>
+                                <uc:CustomButton2
+                                    x:Name="btnMoveRobotCoord"
+                                    Title="Move to &#x0A;Coord"
+                                    Width="110"
+                                    Height="37"
+                                    Margin="35,5,5,5"
+                                    EndColor="#1C4D8D"
+                                    FontSize="12"
+                                    IconHeight="27"
+                                    IconWidth="30"
+                                    IsEnabled="{Binding CanFinish}"
+                                    LeftIcon="/Resources/Icons/moving.png"
+                                    MouseDown="btnMoveRobotCoord_MouseDown"
+                                    StartColor="#C8AAAA" />
+                            </StackPanel>
+                        </Grid>
+                        <Grid Grid.Row="3">
+                            <StackPanel
+                                Margin="0,-10,0,0"
+                                HorizontalAlignment="Center"
+                                Orientation="Horizontal">
+                                <uc:CustomButton2
+                                    x:Name="btnLoadExistingMatrix"
+                                    Title="Load Old&#x0A;Calib"
+                                    Width="110"
+                                    Height="45"
+                                    Margin="15,5,5,5"
+                                    EndColor="#75B06F"
+                                    FontSize="12"
+                                    IconHeight="30"
+                                    IconWidth="35"
+                                    IsEnabled="{Binding CanFinish}"
+                                    LeftIcon="/Resources/Icons/save.png"
+                                    MouseDown="btnLoadExistingMatrix_MouseDown"
+                                    StartColor="#C6D870" />
 
+                                <uc:CustomButton2
+                                    x:Name="btnSaveMatrix"
+                                    Title="Save&#x0A;Calib"
+                                    Width="110"
+                                    Height="45"
+                                    Margin="15,5,5,5"
+                                    EndColor="#75B06F"
+                                    FontSize="12"
+                                    IconHeight="30"
+                                    IconWidth="35"
+                                    IsEnabled="{Binding CanFinish}"
+                                    LeftIcon="/Resources/Icons/save.png"
+                                    MouseDown="btnSaveMatrix_MouseDown"
+                                    StartColor="#C6D870" />
+
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </GroupBox>
+            </Grid>
+        </Grid>
     </Grid>
 </Window>

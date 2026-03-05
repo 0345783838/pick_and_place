@@ -20,4 +20,11 @@ namespace PickAndPlace.Models
         RESULT = 1,
         ORIGINAL = 2
     }
+    public enum LogLevel
+    {
+        Info,
+        Success,
+        Warning,
+        Error
+    }
 }

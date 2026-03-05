@@ -14,7 +14,7 @@
     MinWidth="1280"
     MinHeight="800"
     Closing="Window_Closing"
-    Icon="/Resources/Icons/disk.png"
+    Icon="/Resources/Icons/robot-arm.png"
     Loaded="Window_Loaded"
     Style="{StaticResource WindowStyle}"
     WindowStartupLocation="CenterScreen"
@@ -70,18 +70,7 @@
                             </Button>
 
                             <Separator />
-                            <Button
-                                x:Name="btnCalibIntrinsic"
-                                Margin="5,0,5,0"
-                                Click="btnCalibIntrinsic_Click"
-                                Style="{StaticResource btToolBarStyle}"
-                                ToolTip="Offine Mode">
-                                <Image
-                                    Width="45"
-                                    Height="45"
-                                    Source="/Resources/Icons/board.png"
-                                    Style="{DynamicResource imageButton}" />
-                            </Button>
+
                             <Separator />
                             <Button
                                 x:Name="btnCalibEyeToHand2D"
@@ -199,6 +188,26 @@
                     </Grid>
                 </DockPanel>
             </Grid>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="551*" />
+                <ColumnDefinition Width="249*" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <GroupBox
+                    Margin="5"
+                    BorderBrush="Black"
+                    BorderThickness="1"
+                    FontWeight="Bold"
+                    Header="Camera View">
+                    <myControl:ImageBox
+                        x:Name="imbImage"
+                        Margin="5"
+                        Background="LightGray" />
+                </GroupBox>
+            </Grid>
+
         </Grid>
     </Grid>
 </Window>

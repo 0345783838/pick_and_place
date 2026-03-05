@@ -10,6 +10,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace PickAndPlace.Controllers.APIs
 {
@@ -19,63 +20,165 @@ namespace PickAndPlace.Controllers.APIs
         public static Properties.Settings _param = Properties.Settings.Default;
 
 
-        //public static DebugImageResponse DebugImages(string url,Mat image, EnvironmentConfig envConfig, int timeout=10000)
-        //{
-        //    dynamic obj = new DebugImageResponse();
-        //    var options = new RestClientOptions(url)
-        //    {
-        //        Timeout = TimeSpan.FromMilliseconds(timeout)
-        //    };
-        //    var client = new RestClient(options);
-        //    var request = new RestRequest(_param.EndPointDebug, Method.Post);
-        //    request.AlwaysMultipartFormData = true;
+        public static Calib2DResponse Calibration2D(string url, ObservableCollection<PairPoint> pairPoints, int timeout = 10000)
+        {
+            var options = new RestClientOptions(url)
+            {
+                Timeout = TimeSpan.FromMilliseconds(timeout)
+            };
 
-        //    // Add File
-        //    byte[] jpegData = image.ToImage<Bgr, byte>().ToJpegData();
-        //    request.AddFile("image", jpegData, $"image.jpg");
+            var client = new RestClient(options);
 
-        //    // Tạo payload JSON
-        //    var payload = new
-        //    {
-        //        segment_threshold = envConfig.SegmentThreshold,
-        //        segment_iou = envConfig.SegmentIou,
-        //        detect_threshold = envConfig.DetectThreshold,
-        //        detect_iou = envConfig.DetectIou,
-        //        caliper_min_edge_distance = envConfig.CaliperMinEdgeDistance,
-        //        caliper_max_edge_distance = envConfig.CaliperMaxEdgeDistance,
-        //        caliper_length_rate = envConfig.CaliperLengthRate,
-        //        caliper_thickness_list = envConfig.CaliperThicknessList,
-        //        disk_num = envConfig.DiskNumber,
-        //        disk_max_distance = envConfig.DiskMaxDistance,
-        //        disk_min_distance = envConfig.DiskMinDistance,
-        //        disk_min_area = envConfig.DiskMinArea
-        //    };
-        //    string paramsJson = JsonConvert.SerializeObject(payload);
-        //    request.AddParameter(
-        //                        "params_json",
-        //                        paramsJson,
-        //                        ParameterType.GetOrPost
-        //    );
+            var request = new RestRequest(_param.EndPointCalib2d, Method.Post);
 
-        //    var response = client.Execute(request);
-        //    if (response.StatusCode == System.Net.HttpStatusCode.OK)
-        //    {
-        //        try
-        //        {
-                    
-        //            obj = JsonConvert.DeserializeObject<DebugImageResponse>(response.Content);
-        //            return obj;
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            logger.Debug(ex.Message);
-        //            return null;
-        //        }
-        //    }
-        //    else
-        //    {
-        //        return null;
-        //    }
-        //}
+            //var payload = new
+            //{
+            //    pixel_points = pairPoints.Select(p => new[] { p.ImagePixel.Item1, p.ImagePixel.Item2 }).ToList(),
+            //    robot_points = pairPoints.Select(p => new[] { p.RobotCoord.Item1, p.RobotCoord.Item2 }).ToList()
+            //};
+
+
+            var demePairPoints = new ObservableCollection<PairPoint>();
+            demePairPoints.Add(new PairPoint(0, new Tuple<double, double>(812.3, 642.8), new Tuple<double, double>(305.2, 118.6)));
+            demePairPoints.Add(new PairPoint(1, new Tuple<double, double>(1432.7, 610.5), new Tuple<double, double>(530.8, 132.4)));
+            demePairPoints.Add(new PairPoint(2, new Tuple<double, double>(1470.1, 1032.4), new Tuple<double, double>(542.1, 282.7)));
+            demePairPoints.Add(new PairPoint(3, new Tuple<double, double>(845.6, 1065.2), new Tuple<double, double>(316.4, 268.3)));
+            
+            var payload = new
+            {
+                pixel_points = demePairPoints.Select(p => new[] { p.ImagePixel.Item1, p.ImagePixel.Item2 }).ToList(),
+                robot_points = demePairPoints.Select(p => new[] { p.RobotCoord.Item1, p.RobotCoord.Item2 }).ToList()
+            };
+
+            request.AddJsonBody(payload);
+
+            var response = client.Execute(request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                try
+                {
+                    return JsonConvert.DeserializeObject<Calib2DResponse>(response.Content);
+                }
+                catch (Exception ex)
+                {
+                    logger.Debug(ex.Message);
+                    return null;
+                }
+            }
+
+            return null;
+        }
+        public static Calib2DResponse TransformPoint(string url, double x, double y, int timeout = 10000)
+        {
+            var options = new RestClientOptions(url)
+            {
+                Timeout = TimeSpan.FromMilliseconds(timeout)
+            };
+
+            var client = new RestClient(options);
+
+            var request = new RestRequest(_param.EndPointTransform, Method.Post);
+
+            var payload = new
+            {
+                pixel = new[] { x, y }
+            };
+
+            request.AddJsonBody(payload);
+
+            var response = client.Execute(request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                try
+                {
+                    return JsonConvert.DeserializeObject<Calib2DResponse>(response.Content);
+                }
+                catch (Exception ex)
+                {
+                    logger.Debug(ex.Message);
+                    return null;
+                }
+            }
+
+            return null;
+        }
+        public static Calib2DResponse SaveMatrix(string url, int timeout = 10000)
+        {
+            var options = new RestClientOptions(url)
+            {
+                Timeout = TimeSpan.FromMilliseconds(timeout)
+            };
+
+            var client = new RestClient(options);
+
+            var request = new RestRequest(_param.EndPointSaveMatrix, Method.Post);
+
+            var response = client.Execute(request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                try
+                {
+                    return JsonConvert.DeserializeObject<Calib2DResponse>(response.Content);
+                }
+                catch (Exception ex)
+                {
+                    logger.Debug(ex.Message);
+                    return null;
+                }
+            }
+
+            return null;
+        }
+        public static Calib2DResponse LoadExistingMatrix(string url, int timeout = 10000)
+        {
+            var options = new RestClientOptions(url)
+            {
+                Timeout = TimeSpan.FromMilliseconds(timeout)
+            };
+
+            var client = new RestClient(options);
+
+            var request = new RestRequest(_param.EndPointLoadMatrix, Method.Post);
+
+            var response = client.Execute(request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                try
+                {
+                    return JsonConvert.DeserializeObject<Calib2DResponse>(response.Content);
+                }
+                catch (Exception ex)
+                {
+                    logger.Debug(ex.Message);
+                    return null;
+                }
+            }
+
+            return null;
+        }
+
+        public static bool CheckAPIStatus(string url, int timeout = 1000)
+        {
+            var options = new RestClientOptions(url)
+            {
+                Timeout = TimeSpan.FromMilliseconds(timeout)
+            };
+            var client = new RestClient(options);
+            var request = new RestRequest(_param.EndPointCheckStatus, Method.Get);
+
+            var response = client.Execute(request);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }
