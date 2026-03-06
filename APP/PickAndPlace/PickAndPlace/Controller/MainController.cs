@@ -108,9 +108,9 @@ namespace PickAndPlace.Controller
         {
             try
             {
-                _robot = new EpsonRobotClient(_param.RobotIp, _param.RobotPort);
+                _robot = new EpsonRobotClient(_param.RobotIp);
 
-                _robot.EnsureConnected();
+                _robot.Connect();
 
                 bool ready = _robot.IsRobotReady();
 
@@ -147,8 +147,8 @@ namespace PickAndPlace.Controller
 
         internal void ProcessImage()
         {
-            //var bitmap = _camera.GetBitmap();
-            var bitmap = new System.Drawing.Bitmap(@"D:\huynhvc\OTHERS\pick_and_place\test\pcb\Image_20260305144705660.bmp");
+            var bitmap = _camera.GetBitmap();
+            //var bitmap = new System.Drawing.Bitmap(@"D:\huynhvc\OTHERS\pick_and_place\test\pcb\Image_20260305144705660.bmp");
             _mainWindow.UpdateImage(bitmap);
 
             var emguCvImage = new Image<Bgr, byte>(bitmap);
@@ -166,7 +166,6 @@ namespace PickAndPlace.Controller
                 _mainWindow.UpdateStatistics(res.Result);
                 _mainWindow.UpdateInspectionStatus(res.Result);
             }
-
         }
     }
 }

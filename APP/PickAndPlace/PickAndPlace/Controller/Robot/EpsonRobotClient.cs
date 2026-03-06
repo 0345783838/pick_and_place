@@ -2,101 +2,137 @@
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading;
 
 namespace PickAndPlace.Controller.Robot
 {
     public class EpsonRobotClient : IDisposable
     {
-        private TcpClient _client;
-        private NetworkStream _stream;
-        private StreamReader _reader;
-        private StreamWriter _writer;
-
         private readonly string _ip;
-        private readonly int _port;
+
+        private const int COMMAND_PORT = 5000;
+        private const int EXEC_PORT = 2000;
+
+        private TcpClient _commandClient;
+        private NetworkStream _commandStream;
+        private StreamReader _commandReader;
+        private StreamWriter _commandWriter;
+
+        private bool _isLoggedIn = false;
 
         private readonly object _lock = new object();
 
-        public bool IsConnected => _client != null && _client.Connected;
+        private const string END = "\r\n";
 
-        public EpsonRobotClient(string ip, int port = 5000)
+        public EpsonRobotClient(string ip)
         {
             _ip = ip;
-            _port = port;
         }
 
-        #region Connection
-
-        public void EnsureConnected()
-        {
-            if (!IsConnected)
-            {
-                Connect();
-            }
-        }
+        #region Connect / Login
 
         public void Connect()
         {
-            Disconnect();
+            if (_commandClient != null && _commandClient.Connected)
+                return;
 
-            _client = new TcpClient();
+            _commandClient = new TcpClient();
+            _commandClient.Connect(_ip, COMMAND_PORT);
 
-            _client.ReceiveTimeout = 5000;
-            _client.SendTimeout = 5000;
+            _commandStream = _commandClient.GetStream();
 
-            _client.Connect(_ip, _port);
-
-            _stream = _client.GetStream();
-
-            _reader = new StreamReader(_stream, Encoding.ASCII);
-
-            _writer = new StreamWriter(_stream, Encoding.ASCII)
+            _commandReader = new StreamReader(_commandStream, Encoding.ASCII);
+            _commandWriter = new StreamWriter(_commandStream, Encoding.ASCII)
             {
                 AutoFlush = true
             };
+
+            Login();
         }
 
-        public void Disconnect()
+        private void Login()
         {
-            try
-            {
-                _reader?.Close();
-                _writer?.Close();
-                _stream?.Close();
-                _client?.Close();
-            }
-            catch
-            {
-            }
+            if (_isLoggedIn)
+                return;
 
-            _reader = null;
-            _writer = null;
-            _stream = null;
-            _client = null;
+            var loginRes = SendCommandPort("$Login,");
+            if (loginRes.StartsWith("#Login,0"))
+                _isLoggedIn = true;
+            else
+            {
+                _isLoggedIn = false;
+                
+            }
         }
 
         #endregion
 
-        #region Core Communication
+        #region Command Port
 
-        private string SendCommand(string command)
+        private string SendCommandPort(string cmd)
+        {
+            _commandWriter.WriteLine(cmd);
+
+            string response = _commandReader.ReadLine();
+
+            if (response == null)
+                throw new Exception("Robot command port disconnected");
+
+            if (response.StartsWith("ERROR"))
+                throw new Exception($"Robot error: {response}");
+
+            return response;
+        }
+
+        #endregion
+
+        #region Execution
+
+        private string ExecuteRobotCommand(string command)
         {
             lock (_lock)
             {
-                if (!IsConnected)
-                    throw new Exception("Robot not connected");
+                if (_commandClient == null || !_commandClient.Connected)
+                {
+                    Connect();
+                }
 
-                _writer.WriteLine(command);
+                // yêu cầu robot mở port 2000
+                var resStart = SendCommandPort("$Start,0");
+                if (resStart.Contains("!"))
+                {
+                    SendCommandPort("$Stop,0");
+                    var res2 = SendCommandPort("$Start,0");
+                    if (res2.Contains("!"))
+                    {
+                        throw new Exception($"Cannot Start Robot Command!:");
+                    }
+                }
 
-                string response = _reader.ReadLine();
+                // robot cần chút thời gian mở port
+                Thread.Sleep(100);
 
-                if (response == null)
-                    throw new Exception("Robot disconnected");
+                using (TcpClient execClient = new TcpClient())
+                {
+                    execClient.Connect(_ip, EXEC_PORT);
 
-                if (response.StartsWith("ERROR"))
-                    throw new Exception($"Robot error: {response}");
+                    using (NetworkStream stream = execClient.GetStream())
+                    using (StreamReader reader = new StreamReader(stream, Encoding.ASCII))
+                    using (StreamWriter writer = new StreamWriter(stream, Encoding.ASCII) { AutoFlush = true })
+                    {
+                        writer.Write(command + END);
 
-                return response;
+                        string response = reader.ReadLine();
+
+                        if (response == null)
+                            throw new Exception("Robot execution disconnected");
+
+                        if (response.StartsWith("ERROR"))
+                            throw new Exception($"Robot error: {response}");
+
+                        return response;
+                    }
+                }
             }
         }
 
@@ -106,7 +142,8 @@ namespace PickAndPlace.Controller.Robot
 
         public bool IsRobotReady()
         {
-            string res = SendCommand("GET_STATUS");
+            return _isLoggedIn;
+            string res = ExecuteRobotCommand("GET_STATUS");
 
             return res.Contains("IDLE");
         }
@@ -115,71 +152,93 @@ namespace PickAndPlace.Controller.Robot
 
         #region Motion
 
-        public void MoveXY(double x, double y)
+        public bool MoveXY(double x, double y)
         {
-            string cmd = $"MOVE X{x:F3} Y{y:F3}";
-
-            SendCommand(cmd);
+            string cmd = $"MOVE {x:F3} {y:F3}";
+            try
+            {
+                ExecuteRobotCommand(cmd);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+            
         }
 
-        public void Pick(double x, double y, double w)
+        public bool Pick(double x, double y, double w)
         {
-            string cmd = $"PICK X{x:F3} Y{y:F3} W{w:F3}";
+            string cmd = $"PICK {x:F3} {y:F3} {w:F3}";
 
-            SendCommand(cmd);
+            try
+            {
+                ExecuteRobotCommand(cmd);
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
         }
 
         #endregion
 
         #region Position
 
-        public RobotPose GetCurrentPosition()
+        public (bool, RobotPose, string) GetCurrentPosition()
         {
-            string res = SendCommand("GET_POSE");
+            try
+            {
+                string res = ExecuteRobotCommand("GET_POSE");
+                return (true, ParsePose(res), "Success!");
+            }
+            catch (Exception e)
+            {
+                return (true, null, e.Message);
+            }
+            
 
-            return ParsePose(res);
+            
         }
 
         private RobotPose ParsePose(string data)
         {
             RobotPose pose = new RobotPose();
 
-            var parts = data.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var p in parts)
-            {
-                if (p.StartsWith("X="))
-                    pose.X = double.Parse(p.Substring(2));
-
-                else if (p.StartsWith("Y="))
-                    pose.Y = double.Parse(p.Substring(2));
-
-                else if (p.StartsWith("Z="))
-                    pose.Z = double.Parse(p.Substring(2));
-
-                else if (p.StartsWith("W="))
-                    pose.W = double.Parse(p.Substring(2));
-            }
+            var parts = data.Split(' ');
+            pose.X = double.Parse(parts[0]);
+            pose.Y = double.Parse(parts[1]);
+            pose.W = double.Parse(parts[2]);
 
             return pose;
         }
 
         #endregion
 
+        #region Dispose
+
         public void Dispose()
         {
-            Disconnect();
+            try
+            {
+                _commandReader?.Close();
+                _commandWriter?.Close();
+                _commandStream?.Close();
+                _commandClient?.Close();
+            }
+            catch
+            {
+            }
         }
+
+        #endregion
     }
 
     public class RobotPose
     {
         public double X { get; set; }
-
         public double Y { get; set; }
-
-        public double Z { get; set; }
-
         public double W { get; set; }
     }
 }

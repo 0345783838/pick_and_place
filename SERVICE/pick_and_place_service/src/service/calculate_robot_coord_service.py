@@ -98,7 +98,7 @@ class CalculateRobotCoordService(BaseService):
         center_x = corner_robot[0] + dx_r
         center_y = corner_robot[1] + dy_r
 
-        robot_theta = -theta_deg
+        robot_theta = theta_deg
 
         return center_x, center_y, robot_theta
 

@@ -6,6 +6,7 @@ using PickAndPlace.Models;
 using PickAndPlace.Services;
 using PickAndPlace.Utils;
 using PickAndPlace.Views.EyeHand2dCalibWindows;
+using PickAndPlace.Views.SettingsWindows;
 using PickAndPlace.Views.UtilitiesWindows;
 using System;
 using System.Collections.Generic;
@@ -93,7 +94,8 @@ namespace PickAndPlace.Views
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)
         {
-
+            var window = new SettingsWindow();
+            window.ShowDialog();
         }
 
         private void btnCalibIntrinsic_Click(object sender, RoutedEventArgs e)

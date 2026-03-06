@@ -256,17 +256,26 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
             //int number2 = rnd.Next(1, 1000); // 1 → 999
             //UpdateRobotCoord(number1, number2);
 
-            RobotPose pose = _robot.GetCurrentPosition();
-            UpdateRobotCoord(pose.X, pose.Y);
+            (bool res, RobotPose pose, string mes) = _robot.GetCurrentPosition();
+            if (res)
+            {
+                UpdateRobotCoord(pose.X, pose.Y);
+            }
+            else
+            {
+                var error = new ErrorWindow($"Cannot get robot pose, err: {mes}");
+                error.ShowDialog();
+                return;
+            }
 
         }
         private bool CheckAndStartRobot()
         {
             try
             {
-                _robot = new EpsonRobotClient(_param.RobotIp, _param.RobotPort);
+                _robot = new EpsonRobotClient(_param.RobotIp);
 
-                _robot.EnsureConnected();
+                _robot.Connect();
 
                 bool ready = _robot.IsRobotReady();
 
@@ -397,7 +406,7 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
             if (e.ClickCount == 2)
             {
                 ResetView();
-            }
+            }   
 
             if (!_isSelecting && !_isValidating)
                 return;
