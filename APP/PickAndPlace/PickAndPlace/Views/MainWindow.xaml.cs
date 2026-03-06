@@ -136,7 +136,7 @@ namespace PickAndPlace.Views
 
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
-
+            _mainController.Stop();
         }
 
         internal void SetLoadingService(string content)

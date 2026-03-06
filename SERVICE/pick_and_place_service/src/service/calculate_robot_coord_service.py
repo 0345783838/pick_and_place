@@ -36,6 +36,8 @@ class CalculateRobotCoordService(BaseService):
         left_bottom_x = result.left_bottom_x
         left_bottom_y = result.left_bottom_y
 
+        print(left_bottom_x, left_bottom_y)
+
         # # Calculate real PCB center coord
         # corner_robot = self.calib.transform([left_bottom_x, left_bottom_y])
         # rx, ry = corner_robot

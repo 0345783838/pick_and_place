@@ -16,18 +16,14 @@ class Calibration2D:
         pixel_points = np.array(pixel_points, dtype=np.float32)
         robot_points = np.array(robot_points, dtype=np.float32)
 
-        M, inliers = cv2.estimateAffine2D(
-            pixel_points,
-            robot_points,
-            method=cv2.RANSAC
-        )
+        H, status = cv2.findHomography(pixel_points, robot_points)
 
-        self.matrix = M
-        return M, inliers
+        self.matrix = H
+        return H, status
 
     def transform(self, pixel_point):
         pt = np.array([[pixel_point]], dtype=np.float32)
-        result = cv2.transform(pt, self.matrix)
+        result = cv2.perspectiveTransform(pt, self.matrix)
         return result[0][0]
 
     def save(self, path):
@@ -50,7 +46,7 @@ class Calibration2D:
 
             self.matrix = np.array(data, dtype=np.float32)
 
-            if self.matrix.shape != (2, 3):
+            if self.matrix.shape != (3, 3):
                 return False, "Invalid matrix shape"
 
             return True, None

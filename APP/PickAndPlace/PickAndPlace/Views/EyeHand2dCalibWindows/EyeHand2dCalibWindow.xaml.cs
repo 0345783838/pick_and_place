@@ -301,7 +301,8 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
                 tbImageY.Text = "";
                 tbRobotX.Text = "";
                 tbRobotY.Text = "";
-
+                if (_curImage == null)
+                    return;
                 UpdateImage(_curImage.Bitmap);
             });
         }

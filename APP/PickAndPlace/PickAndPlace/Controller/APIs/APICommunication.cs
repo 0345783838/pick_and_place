@@ -75,24 +75,24 @@ namespace PickAndPlace.Controllers.APIs
 
             var request = new RestRequest(_param.EndPointCalib2d, Method.Post);
 
-            //var payload = new
-            //{
-            //    pixel_points = pairPoints.Select(p => new[] { p.ImagePixel.Item1, p.ImagePixel.Item2 }).ToList(),
-            //    robot_points = pairPoints.Select(p => new[] { p.RobotCoord.Item1, p.RobotCoord.Item2 }).ToList()
-            //};
-
-
-            var demePairPoints = new ObservableCollection<PairPoint>();
-            demePairPoints.Add(new PairPoint(0, new Tuple<double, double>(812.3, 642.8), new Tuple<double, double>(305.2, 118.6)));
-            demePairPoints.Add(new PairPoint(1, new Tuple<double, double>(1432.7, 610.5), new Tuple<double, double>(530.8, 132.4)));
-            demePairPoints.Add(new PairPoint(2, new Tuple<double, double>(1470.1, 1032.4), new Tuple<double, double>(542.1, 282.7)));
-            demePairPoints.Add(new PairPoint(3, new Tuple<double, double>(845.6, 1065.2), new Tuple<double, double>(316.4, 268.3)));
-            
             var payload = new
             {
-                pixel_points = demePairPoints.Select(p => new[] { p.ImagePixel.Item1, p.ImagePixel.Item2 }).ToList(),
-                robot_points = demePairPoints.Select(p => new[] { p.RobotCoord.Item1, p.RobotCoord.Item2 }).ToList()
+                pixel_points = pairPoints.Select(p => new[] { p.ImagePixel.Item1, p.ImagePixel.Item2 }).ToList(),
+                robot_points = pairPoints.Select(p => new[] { p.RobotCoord.Item1, p.RobotCoord.Item2 }).ToList()
             };
+
+
+            //var demePairPoints = new ObservableCollection<PairPoint>();
+            //demePairPoints.Add(new PairPoint(0, new Tuple<double, double>(812.3, 642.8), new Tuple<double, double>(305.2, 118.6)));
+            //demePairPoints.Add(new PairPoint(1, new Tuple<double, double>(1432.7, 610.5), new Tuple<double, double>(530.8, 132.4)));
+            //demePairPoints.Add(new PairPoint(2, new Tuple<double, double>(1470.1, 1032.4), new Tuple<double, double>(542.1, 282.7)));
+            //demePairPoints.Add(new PairPoint(3, new Tuple<double, double>(845.6, 1065.2), new Tuple<double, double>(316.4, 268.3)));
+            
+            //var payload = new
+            //{
+            //    pixel_points = demePairPoints.Select(p => new[] { p.ImagePixel.Item1, p.ImagePixel.Item2 }).ToList(),
+            //    robot_points = demePairPoints.Select(p => new[] { p.RobotCoord.Item1, p.RobotCoord.Item2 }).ToList()
+            //};
 
             request.AddJsonBody(payload);
 

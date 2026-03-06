@@ -82,6 +82,11 @@ namespace PickAndPlace.Controller
                 return false;
             }
         }
+        internal void Stop()
+        {
+            _camera.Stop();
+            _camera.Close();
+        }
 
         private bool CheckAndStartEngine()
         {
@@ -131,7 +136,7 @@ namespace PickAndPlace.Controller
 
         private bool CheckAndStartCamera()
         {
-            return true;
+            //return true;
             _cameraManager = CameraManager.GetInstance();
             _camera = _cameraManager.GetCamera();
             if (!_camera.IsOpen())
@@ -153,14 +158,14 @@ namespace PickAndPlace.Controller
 
             var emguCvImage = new Image<Bgr, byte>(bitmap);
 
-            var res = APICommunication.GetRealCoord(_param.ApiUrlAi, emguCvImage, 507, 598);
+            var res = APICommunication.GetRealCoord(_param.ApiUrlAi, emguCvImage, 608, 508);
             if (res != null)
             {
                 if (res.Result)
                 {
                     _mainWindow.UpdateImage(Converter.Base64ToBitmap(res.ResImg));
                     _mainWindow.UpdateCalculateResult((double)res.Score, (double)res.ImageX, (double)res.ImageY, (double)res.ImageAngle, (double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
-                    _robot.Pick((double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
+                    //_robot.Pick((double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
                 }
 
                 _mainWindow.UpdateStatistics(res.Result);

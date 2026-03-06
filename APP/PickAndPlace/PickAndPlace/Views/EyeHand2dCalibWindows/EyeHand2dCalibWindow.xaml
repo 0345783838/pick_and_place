@@ -462,7 +462,7 @@
                                         BorderBrush="DarkGray"
                                         FontSize="14"
                                         FontWeight="Bold"
-                                        IsReadOnly="True" />
+                                        IsReadOnly="False" />
                                 </StackPanel>
                                 <StackPanel Margin="25,-10,0,0" VerticalAlignment="Center">
                                     <Label
@@ -481,7 +481,7 @@
                                         BorderBrush="DarkGray"
                                         FontSize="14"
                                         FontWeight="Bold"
-                                        IsReadOnly="True" />
+                                        IsReadOnly="False" />
                                 </StackPanel>
                                 <uc:CustomButton2
                                     x:Name="btnSelectPoint"
