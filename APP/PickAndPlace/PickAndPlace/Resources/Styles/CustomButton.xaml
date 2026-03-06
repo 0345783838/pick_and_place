@@ -21,7 +21,7 @@
                     </Trigger>
                     <Trigger Property="IsEnabled" Value="False">
                         <Setter Property="Background" Value="DarkGray" />
-                        <!--  Màu khi hover  -->
+                        <!--  Màu khi disable  -->
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -41,7 +41,17 @@
                     Margin="0,0,0,0"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Source="{Binding LeftIcon, ElementName=root}" />
+                    Source="{Binding LeftIcon, ElementName=root}">
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Style.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.3" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
             </Border>
 
             <!--  Nội dung giữa  -->

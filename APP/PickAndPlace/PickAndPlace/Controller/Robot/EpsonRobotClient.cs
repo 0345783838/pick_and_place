@@ -1,22 +1,23 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace PickAndPlace.Controller.Robot
 {
     public class EpsonRobotClient : IDisposable
     {
-        
         private TcpClient _client;
         private NetworkStream _stream;
+        private StreamReader _reader;
+        private StreamWriter _writer;
+
         private readonly string _ip;
         private readonly int _port;
-        private bool _connected;
 
-        public bool IsConnected => _connected;
+        private readonly object _lock = new object();
+
+        public bool IsConnected => _client != null && _client.Connected;
 
         public EpsonRobotClient(string ip, int port = 5000)
         {
@@ -25,113 +26,139 @@ namespace PickAndPlace.Controller.Robot
         }
 
         #region Connection
-        public async Task EnsureConnectedAsync()
+
+        public void EnsureConnected()
         {
-            if (_client == null || !_client.Connected)
+            if (!IsConnected)
             {
-                await ConnectAsync();
+                Connect();
             }
         }
 
-        public async Task ConnectAsync()
+        public void Connect()
         {
+            Disconnect();
+
             _client = new TcpClient();
-            await _client.ConnectAsync(_ip, _port);
+
+            _client.ReceiveTimeout = 5000;
+            _client.SendTimeout = 5000;
+
+            _client.Connect(_ip, _port);
+
             _stream = _client.GetStream();
-            _connected = true;
+
+            _reader = new StreamReader(_stream, Encoding.ASCII);
+
+            _writer = new StreamWriter(_stream, Encoding.ASCII)
+            {
+                AutoFlush = true
+            };
         }
 
         public void Disconnect()
         {
-            _stream?.Close();
-            _client?.Close();
-            _connected = false;
+            try
+            {
+                _reader?.Close();
+                _writer?.Close();
+                _stream?.Close();
+                _client?.Close();
+            }
+            catch
+            {
+            }
+
+            _reader = null;
+            _writer = null;
+            _stream = null;
+            _client = null;
         }
 
         #endregion
 
         #region Core Communication
 
-        private async Task<string> SendCommandAsync(string command)
+        private string SendCommand(string command)
         {
-            if (!_connected)
-                throw new InvalidOperationException("Robot not connected.");
+            lock (_lock)
+            {
+                if (!IsConnected)
+                    throw new Exception("Robot not connected");
 
-            byte[] data = Encoding.ASCII.GetBytes(command + "\r\n");
-            await _stream.WriteAsync(data, 0, data.Length);
+                _writer.WriteLine(command);
 
-            byte[] buffer = new byte[1024];
-            int bytes = await _stream.ReadAsync(buffer, 0, buffer.Length);
+                string response = _reader.ReadLine();
 
-            return Encoding.ASCII.GetString(buffer, 0, bytes);
+                if (response == null)
+                    throw new Exception("Robot disconnected");
+
+                if (response.StartsWith("ERROR"))
+                    throw new Exception($"Robot error: {response}");
+
+                return response;
+            }
         }
 
         #endregion
 
-        #region Robot Basic Control
+        #region Robot Status
 
-        public async Task ServoOnAsync()
+        public bool IsRobotReady()
         {
-            await SendCommandAsync("Servo On");
-        }
+            string res = SendCommand("GET_STATUS");
 
-        public async Task ServoOffAsync()
-        {
-            await SendCommandAsync("Servo Off");
-        }
-
-        public async Task SetSpeedAsync(int speedPercent)
-        {
-            await SendCommandAsync($"Speed {speedPercent}");
+            return res.Contains("IDLE");
         }
 
         #endregion
 
         #region Motion
 
-        public async Task MoveXYUAsync(double x, double y, double z, double u)
+        public void MoveXY(double x, double y)
         {
-            string cmd = $"Go X{x:F3} Y{y:F3} Z{z:F3} U{u:F3}";
-            await SendCommandAsync(cmd);
+            string cmd = $"MOVE X{x:F3} Y{y:F3}";
+
+            SendCommand(cmd);
         }
 
-        public async Task MoveLinearXYUAsync(double x, double y, double z, double u)
+        public void Pick(double x, double y, double w)
         {
-            string cmd = $"Move X{x:F3} Y{y:F3} Z{z:F3} U{u:F3}";
-            await SendCommandAsync(cmd);
+            string cmd = $"PICK X{x:F3} Y{y:F3} W{w:F3}";
+
+            SendCommand(cmd);
         }
 
         #endregion
 
-        #region Position Read
+        #region Position
 
-        public async Task<RobotPose> GetCurrentPositionAsync()
+        public RobotPose GetCurrentPosition()
         {
-            string response = await SendCommandAsync("Where");
+            string res = SendCommand("GET_POSE");
 
-            // Expected response format:
-            // X=123.456 Y=234.567 Z=0.000 U=15.000
-
-            return ParsePosition(response);
+            return ParsePose(res);
         }
 
-        private RobotPose ParsePosition(string data)
+        private RobotPose ParsePose(string data)
         {
-            var pose = new RobotPose();
+            RobotPose pose = new RobotPose();
 
-            //var parts = data.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            var parts = data.Split(' ');
+            var parts = data.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var p in parts)
             {
                 if (p.StartsWith("X="))
                     pose.X = double.Parse(p.Substring(2));
+
                 else if (p.StartsWith("Y="))
                     pose.Y = double.Parse(p.Substring(2));
+
                 else if (p.StartsWith("Z="))
                     pose.Z = double.Parse(p.Substring(2));
-                else if (p.StartsWith("U="))
-                    pose.U = double.Parse(p.Substring(2));
+
+                else if (p.StartsWith("W="))
+                    pose.W = double.Parse(p.Substring(2));
             }
 
             return pose;
@@ -144,12 +171,15 @@ namespace PickAndPlace.Controller.Robot
             Disconnect();
         }
     }
+
     public class RobotPose
     {
         public double X { get; set; }
-        public double Y { get; set; }
-        public double Z { get; set; }
-        public double U { get; set; }
-    }
 
+        public double Y { get; set; }
+
+        public double Z { get; set; }
+
+        public double W { get; set; }
+    }
 }

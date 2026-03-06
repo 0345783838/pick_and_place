@@ -119,7 +119,7 @@ namespace PickAndPlace.Utils
             if (value is int status)
             {
                 if (status == (int)(StatusState.Ok)) return "OK";
-                else if (status == (int)(StatusState.Ng)) return "NG";
+                else if (status == (int)(StatusState.Ng)) return "FAILED";
                 else if (status == (int)(StatusState.Inspecting)) return "...";
                 else if (status == (int)(StatusState.Stopped)) return "X";
                 return "N/A";
@@ -139,7 +139,7 @@ namespace PickAndPlace.Utils
             if (value is int status)
             {
                 if (status == (int)(StatusState.Ok)) return "PASSED";
-                else if (status == (int)(StatusState.Ng)) return "NOT GOOD";
+                else if (status == (int)(StatusState.Ng)) return "FAILED";
                 else if (status == (int)(StatusState.Inspecting)) return "INSPECTING";
                 else if (status == (int)(StatusState.Stopped)) return "STOPPED";
                 return "N/A";

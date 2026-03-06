@@ -1,6 +1,7 @@
 ﻿using DiskInspection.Controllers;
 using Emgu.CV;
 using Emgu.CV.Structure;
+using PickAndPlace.Controller.Robot;
 using PickAndPlace.Controllers;
 using PickAndPlace.Controllers.APIs;
 using PickAndPlace.Controllers.Camera;
@@ -30,10 +31,12 @@ namespace PickAndPlace.Controller
 
         private CameraManager _cameraManager;
         private LincolnCamera _camera;
+        private EpsonRobotClient _robot;
 
         public MainController(MainWindow window)
         {
             _mainWindow = window;
+
         }
         public bool RunServiceAsync(int timeout, string content)
         {
@@ -103,7 +106,27 @@ namespace PickAndPlace.Controller
 
         private bool CheckAndStartRobot()
         {
-            return true;
+            try
+            {
+                _robot = new EpsonRobotClient(_param.RobotIp, _param.RobotPort);
+
+                _robot.EnsureConnected();
+
+                bool ready = _robot.IsRobotReady();
+
+                if (!ready)
+                {
+                    AppLogger.Instance.Error("Robot not ready", "SYSTEM");
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Instance.Error(ex.Message, "SYSTEM");
+                return false;
+            }
         }
 
         private bool CheckAndStartCamera()
@@ -125,7 +148,7 @@ namespace PickAndPlace.Controller
         internal void ProcessImage()
         {
             //var bitmap = _camera.GetBitmap();
-            var bitmap = new System.Drawing.Bitmap(@"C:\Users\CH Computer\Downloads\pcb\Image_20260305144528806.bmp");
+            var bitmap = new System.Drawing.Bitmap(@"D:\huynhvc\OTHERS\pick_and_place\test\pcb\Image_20260305144705660.bmp");
             _mainWindow.UpdateImage(bitmap);
 
             var emguCvImage = new Image<Bgr, byte>(bitmap);
@@ -136,7 +159,12 @@ namespace PickAndPlace.Controller
                 if (res.Result)
                 {
                     _mainWindow.UpdateImage(Converter.Base64ToBitmap(res.ResImg));
+                    _mainWindow.UpdateCalculateResult((double)res.Score, (double)res.ImageX, (double)res.ImageY, (double)res.ImageAngle, (double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
+                    _robot.Pick((double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
                 }
+
+                _mainWindow.UpdateStatistics(res.Result);
+                _mainWindow.UpdateInspectionStatus(res.Result);
             }
 
         }

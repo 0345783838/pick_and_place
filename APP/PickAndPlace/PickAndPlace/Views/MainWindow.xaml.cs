@@ -1,12 +1,16 @@
-﻿using PickAndPlace.Controller;
+﻿using LiveCharts;
+using LiveCharts.Wpf;
+using PickAndPlace.Controller;
 using PickAndPlace.Controllers;
 using PickAndPlace.Models;
 using PickAndPlace.Services;
+using PickAndPlace.Utils;
 using PickAndPlace.Views.EyeHand2dCalibWindows;
 using PickAndPlace.Views.UtilitiesWindows;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -33,6 +37,10 @@ namespace PickAndPlace.Views
         public event PropertyChangedEventHandler PropertyChanged;
 
         public AppLogger Logger => AppLogger.Instance;
+        public SeriesCollection PieSeriesCollection { get; set; }
+        private PieSeries _okSeries;
+        private PieSeries _ngSeries;
+        public int InspectionStatus { get; set; } = (int)(StatusState.Unknown);
 
         protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
         {
@@ -48,6 +56,7 @@ namespace PickAndPlace.Views
             InitializeComponent();
             _mainController = new MainController(this);
             DataContext = this;
+            InitStatistics();
             Logger.Logs.CollectionChanged += Logs_CollectionChanged;
         }
         private void Logs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -231,6 +240,123 @@ namespace PickAndPlace.Views
             var imageBoxHeight = imageBox.ActualHeight;
             var scale = Math.Min(imageBoxWidth / imageWidth, imageBoxHeight / imageHeight);
             return scale;
+        }
+        internal void UpdateCurrentShiftTime(string curShiftTime)
+        {
+            DateTime dt = DateTime.ParseExact(
+                curShiftTime,
+                "yyyy-MM-dd HH:mm:ss",
+                CultureInfo.InvariantCulture);
+
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                lbDate.Content = dt.ToString("dd/MM/yyyy");
+                lbWorkingShift.Content = $"{dt.ToString("HH:mm")} - {dt.AddHours(12).ToString("HH:mm")}";
+            }));
+        }
+        internal void UpdateStatistics(bool status, bool firstTime = false)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                // Check shift time
+                var curShiftTime = MyDateTime.GetCurShiftStartTime();
+                if (curShiftTime != _param.StartShiftTime)
+                {
+                    _param.StartShiftTime = curShiftTime;
+                    _param.CurrentOK = 0;
+                    _param.CurrentNG = 0;
+                    _param.Save();
+                    UpdateCurrentShiftTime(_param.StartShiftTime);
+                }
+
+                if (firstTime)
+                {
+                    tbOKCount.Text = _param.CurrentOK.ToString();
+                    tbNGCount.Text = _param.CurrentNG.ToString();
+                    UpdateStatistics(_param.CurrentOK, _param.CurrentNG);
+                    UpdateCurrentShiftTime(_param.StartShiftTime);
+                }
+                else
+                {
+                    if (status)
+                    {
+                        _param.CurrentOK += 1;
+                        tbOKCount.Text = _param.CurrentOK.ToString();
+                    }
+                    else
+                    {
+                        _param.CurrentNG += 1;
+                        tbNGCount.Text = _param.CurrentNG.ToString();
+                    }
+                    UpdateStatistics(_param.CurrentOK, _param.CurrentNG);
+                    _param.Save();
+                }
+            }));
+        }
+        private void InitStatistics()
+        {
+            _okSeries = new PieSeries
+            {
+                Title = "OK",
+                Values = new ChartValues<double> { 0 },
+                DataLabels = true,
+                LabelPoint = chartPoint => $"{chartPoint.Participation:P2}", // <-- thêm %
+                Fill = new SolidColorBrush(System.Windows.Media.Colors.Green)
+            };
+
+            _ngSeries = new PieSeries
+            {
+                Title = "Failed",
+                Values = new ChartValues<double> { 0 },
+                DataLabels = true,
+                LabelPoint = chartPoint => $"{chartPoint.Participation:P2}",
+                Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(249, 68, 73))
+            };
+            PieSeriesCollection = new SeriesCollection { _okSeries, _ngSeries };
+            UpdateStatistics(true, firstTime: true);
+        }
+        public void UpdateStatistics(int okCount, int ngCount)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                _okSeries.Values[0] = (double)okCount;
+                _ngSeries.Values[0] = (double)ngCount;
+            });
+        }
+
+        private void imbImage_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount == 2)
+            {
+                ResetView();
+            }
+        }
+
+        private void ResetView()
+        {
+            if (!object.ReferenceEquals(imbImage.Source, null))
+            {
+                var scaleMap = GetFittedZoomScale(imbImage, imbImage.Source.Width, imbImage.Source.Height);
+                imbImage.SetZoomScale(scaleMap);
+                imbImage.GoToXY(0, 0);
+            }
+        }
+        public void UpdateCalculateResult(double score, double imageX, double imageY, double imageAngle, double robotX, double robotY, double robotW)
+        {
+            this.Dispatcher.Invoke(() =>
+            {
+                lbScore.Content = score.ToString("0.0000");
+                lbImageXYR.Content = $"{imageX.ToString("0.0")},  {imageY.ToString("0.0")},  {imageAngle.ToString("0.0")}";
+                lbRobotXYW.Content = $"{robotX.ToString("0.0")},  {robotY.ToString("0.0")},  {robotW.ToString("0.0")}";
+            });
+        }
+        internal void UpdateInspectionStatus(bool status)
+        {
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                InspectionStatus = status ? (int)(StatusState.Ok) : (int)(StatusState.Ng);
+                OnPropertyChanged(nameof(InspectionStatus));
+            }));
         }
     }
 }

@@ -47,5 +47,14 @@
     <Setting Name="EndPointGetRealCoord" Type="System.String" Scope="User">
       <Value Profile="(Default)">cal_robot_coord</Value>
     </Setting>
+    <Setting Name="StartShiftTime" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+    <Setting Name="CurrentOK" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="CurrentNG" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -60,7 +60,7 @@
                                 EndColor="#353a5f"
                                 IconHeight="60"
                                 IconWidth="60"
-                                IsEnabled="{Binding ConfirmEnable}"
+                                IsEnabled="{Binding IsChecked, ElementName=cbApplyUndistort}"
                                 LeftIcon="/Resources/Icons/board.png"
                                 MouseDown="btnLoadIntrinsicCalib_MouseDown"
                                 StartColor="#50C6FF"
@@ -292,6 +292,7 @@
                                     FontWeight="Bold"
                                     Foreground="DarkBlue" />
                                 <CheckBox
+                                    Name="cbApplyUndistort"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
                                     IsChecked="False">
@@ -809,7 +810,7 @@
                         </Grid>
                         <Grid Grid.Row="1" Margin="0,1,0,1">
                             <StackPanel
-                                Margin="5,-5,5,0"
+                                Margin="5,-15,5,0"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Orientation="Horizontal">
@@ -874,8 +875,8 @@
                                     EndColor="#6e78ff"
                                     FontSize="12"
                                     IconHeight="27"
-                                    IsEnabled="{Binding CanValidate}"
                                     IconWidth="30"
+                                    IsEnabled="{Binding CanValidate}"
                                     LeftIcon="/Resources/Icons/moving.png"
                                     MouseDown="btnMoveRobotCoord_MouseDown"
                                     StartColor="#61f4de" />

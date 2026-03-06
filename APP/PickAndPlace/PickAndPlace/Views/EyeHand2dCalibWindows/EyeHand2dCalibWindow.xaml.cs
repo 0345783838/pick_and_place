@@ -1,5 +1,7 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Structure;
+using PickAndPlace.Controller.Robot;
+using PickAndPlace.Controllers;
 using PickAndPlace.Controllers.APIs;
 using PickAndPlace.Controllers.Camera;
 using PickAndPlace.Models;
@@ -67,6 +69,7 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
         private bool _isSelecting;
         private bool _isValidating;
         private Image<Bgr, byte> _curImage;
+        private EpsonRobotClient _robot;
 
         public EyeHand2dCalibWindow()
         {
@@ -236,11 +239,49 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
 
         private void btnGetRobotCoord_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (_robot==null || !_robot.IsRobotReady())
+            {
+                if (!CheckAndStartRobot())
+                {
+                    var error = new ErrorWindow("Robot is not connected!");
+                    error.ShowDialog();
+                    return;
+                }
+            }
+
             // Get robot coord via TCP/IP
-            Random rnd = new Random();
-            int number1 = rnd.Next(1, 1000); // 1 → 999
-            int number2 = rnd.Next(1, 1000); // 1 → 999
-            UpdateRobotCoord(number1, number2);
+
+            //Random rnd = new Random();
+            //int number1 = rnd.Next(1, 1000); // 1 → 999
+            //int number2 = rnd.Next(1, 1000); // 1 → 999
+            //UpdateRobotCoord(number1, number2);
+
+            RobotPose pose = _robot.GetCurrentPosition();
+            UpdateRobotCoord(pose.X, pose.Y);
+
+        }
+        private bool CheckAndStartRobot()
+        {
+            try
+            {
+                _robot = new EpsonRobotClient(_param.RobotIp, _param.RobotPort);
+
+                _robot.EnsureConnected();
+
+                bool ready = _robot.IsRobotReady();
+
+                if (!ready)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Instance.Error(ex.Message, "SYSTEM");
+                return false;
+            }
         }
 
         private void btnResetPoint_MouseDown(object sender, MouseButtonEventArgs e)
@@ -445,7 +486,24 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
 
         private void btnMoveRobotCoord_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (_curImage == null)
+            {
+                var error = new ErrorWindow("Image is not captured!\rHãy chụp 1 ảnh camera!");
+                error.ShowDialog();
+                return;
+            }
 
+            if (_robot == null || !_robot.IsRobotReady())
+            {
+                if (!CheckAndStartRobot())
+                {
+                    var error = new ErrorWindow("Robot is not connected!");
+                    error.ShowDialog();
+                    return;
+                }
+            }
+
+            _robot.MoveXY(Convert.ToDouble(tbRobotX.Text), Convert.ToDouble(tbRobotY.Text));
         }
 
         private void btnSaveMatrix_MouseDown(object sender, MouseButtonEventArgs e)

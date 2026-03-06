@@ -36,20 +36,22 @@ class CalculateRobotCoordService(BaseService):
         left_bottom_x = result.left_bottom_x
         left_bottom_y = result.left_bottom_y
 
-        # Calculate real PCB center coord
-        corner_robot = self.calib.transform([left_bottom_x, left_bottom_y])
-        rx, ry = corner_robot
-        dx = pcb_width / 2
-        dy = pcb_height / 2
+        # # Calculate real PCB center coord
+        # corner_robot = self.calib.transform([left_bottom_x, left_bottom_y])
+        # rx, ry = corner_robot
+        # dx = pcb_width / 2
+        # dy = pcb_height / 2
+        #
+        # dx_r = dx * math.cos(angle) - dy * math.sin(angle)
+        # dy_r = dx * math.sin(angle) + dy * math.cos(angle)
+        #
+        # cx = rx + dx_r
+        # cy = ry + dy_r
+        #
+        # theta_offset = math.atan2(self.calib.matrix[1, 0], self.calib.matrix[0, 0])
+        # angle_robot = angle + theta_offset
 
-        dx_r = dx * math.cos(angle) - dy * math.sin(angle)
-        dy_r = dx * math.sin(angle) + dy * math.cos(angle)
-
-        cx = rx + dx_r
-        cy = ry + dy_r
-
-        theta_offset = math.atan2(self.calib.matrix[1, 0], self.calib.matrix[0, 0])
-        angle_robot = angle + theta_offset
+        cx, cy, robot_angle = self.compute_robot_pose([left_bottom_x, left_bottom_y], angle, pcb_width, pcb_height)
 
         cv2.polylines(image, [np.array(
             [[result.left_top_x, result.left_top_y], [result.right_top_x, result.right_top_y],
@@ -64,20 +66,41 @@ class CalculateRobotCoordService(BaseService):
             draw_x = int(result.right_top_x) - 100
 
         if result.left_top_y < result.right_top_y:
-            draw_Y = int(result.left_top_y) - 100
+            draw_Y = int(result.left_top_y) - 50
         else:
-            draw_Y = int(result.right_top_y) - 100
+            draw_Y = int(result.right_top_y) - 50
 
-
-        cv2.putText(image, f"Score: {result.score:.4f} --- Angle: {angle:.4f}", (draw_x, draw_Y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(image, f"Score: {result.score:.4f}", (draw_x, draw_Y-50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(image, f"Angle: {angle:.4f} -- X: {left_bottom_x:.4f} -- Y: {left_bottom_y:.4f}", (draw_x, draw_Y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
         return DataResponse(Result=True,
+                            Score=result.score,
                             ResImg=self._convert_2_base64(image),
+                            ImageX=left_bottom_x,
+                            ImageY=left_bottom_y,
+                            ImageAngle=angle,
                             RobotX=cx,
                             RobotY=cy,
-                            RobotAngle=angle_robot
+                            RobotAngle=robot_angle
                             )
 
+    def compute_robot_pose(self, corner, theta_deg, pcb_w, pcb_h):
+        corner_robot = self.calib.transform(corner)
+
+        theta = math.radians(theta_deg)
+
+        dx = pcb_w / 2
+        dy = pcb_h / 2
+
+        dx_r = dx * math.cos(theta) - dy * math.sin(theta)
+        dy_r = dx * math.sin(theta) + dy * math.cos(theta)
+
+        center_x = corner_robot[0] + dx_r
+        center_y = corner_robot[1] + dy_r
+
+        robot_theta = -theta_deg
+
+        return center_x, center_y, robot_theta
 
 if __name__ == '__main__':
     pass

@@ -40,7 +40,17 @@
                 Height="{Binding IconHeight, ElementName=root}"
                 Margin="0,0,10,0"
                 VerticalAlignment="Center"
-                Source="{Binding LeftIcon, ElementName=root}" />
+                Source="{Binding LeftIcon, ElementName=root}">
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.3" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
 
             <!--  Nội dung giữa  -->
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
