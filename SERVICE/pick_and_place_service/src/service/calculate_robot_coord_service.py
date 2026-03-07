@@ -27,8 +27,9 @@ class CalculateRobotCoordService(BaseService):
         img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         matches = self.image_matcher.match(img_gray, self.template)
         if len(matches) == 0:
-            return DataResponse(Result=False,
-                                Message='Không tìm thấy góc PCB')
+            matches = self.image_matcher.match(img_gray, self.template_2)
+            if len(matches) == 0:
+                return DataResponse(Result=False, Message='Không tìm thấy góc PCB')
 
         result = matches[0]
 
@@ -81,8 +82,8 @@ class CalculateRobotCoordService(BaseService):
                             ImageX=left_bottom_x,
                             ImageY=left_bottom_y,
                             ImageAngle=angle,
-                            RobotX=cx,
-                            RobotY=cy,
+                            RobotX=cx-self.offset_x,
+                            RobotY=cy+self.offset_y,
                             RobotAngle=robot_angle
                             )
 
@@ -103,6 +104,7 @@ class CalculateRobotCoordService(BaseService):
         robot_theta = theta_deg
 
         return center_x, center_y, robot_theta
+
 
 if __name__ == '__main__':
     pass

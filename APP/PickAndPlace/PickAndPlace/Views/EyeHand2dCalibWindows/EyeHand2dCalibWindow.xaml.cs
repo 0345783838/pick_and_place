@@ -195,7 +195,7 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
         private void btnCaptureImage_MouseDown(object sender, MouseButtonEventArgs e)
         {
             var bitmap = _cam.GetBitmap();
-            //System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(@"F:\working\pick_and_place\pick_and_place\Data\Image_20260304170350160.bmp");
+            //System.Drawing.Bitmap bitmap = new System.Drawing.Bitmap(@"D:\huynhvc\OTHERS\pick_and_place\APP\Image_20260307110740938.bmp");
             _curImage = new Image<Bgr, byte>(bitmap);
             UpdateImage(bitmap);
             CanSelectPoint = true;

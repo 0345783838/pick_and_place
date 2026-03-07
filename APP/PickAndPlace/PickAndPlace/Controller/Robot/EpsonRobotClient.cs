@@ -44,7 +44,7 @@ namespace PickAndPlace.Controller.Robot
             _commandReader = new StreamReader(_commandStream, Encoding.ASCII);
             _commandWriter = new StreamWriter(_commandStream, Encoding.ASCII)
             {
-                AutoFlush = true
+                AutoFlush = true,
             };
 
             Login();
@@ -116,22 +116,30 @@ namespace PickAndPlace.Controller.Robot
                 {
                     execClient.Connect(_ip, EXEC_PORT);
 
-                    using (NetworkStream stream = execClient.GetStream())
-                    using (StreamReader reader = new StreamReader(stream, Encoding.ASCII))
-                    using (StreamWriter writer = new StreamWriter(stream, Encoding.ASCII) { AutoFlush = true })
+                    NetworkStream stream = execClient.GetStream();
+                    StreamReader reader = new StreamReader(stream, Encoding.ASCII);
+                    StreamWriter writer = new StreamWriter(stream, Encoding.ASCII)
                     {
-                        writer.Write(command + END);
+                        AutoFlush = true
+                    };
+                   
 
-                        string response = reader.ReadLine();
+                    writer.WriteLine(command);
 
-                        if (response == null)
-                            throw new Exception("Robot execution disconnected");
+                    string response = reader.ReadLine();
 
-                        if (response.StartsWith("ERROR"))
-                            throw new Exception($"Robot error: {response}");
+                    if (response == null)
+                        throw new Exception("Robot execution disconnected");
 
-                        return response;
-                    }
+                    if (response.StartsWith("ERROR"))
+                        throw new Exception($"Robot error: {response}");
+
+                    stream.Close();
+                    reader.Close();
+                    writer.Close();
+
+                    return response;
+                    
                 }
             }
         }

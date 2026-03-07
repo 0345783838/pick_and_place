@@ -40,7 +40,7 @@ namespace PickAndPlace.Controllers.APIs
             byte[] jpegData = image.ToJpegData();
             request.AddFile("image", jpegData, $"image.jpg");
 
-            string paramsJson = JsonConvert.SerializeObject(payload);
+            string paramsJson = JsonConvert.SerializeObject(payload);   
             request.AddParameter(
                                 "pcb_size",
                                 paramsJson,

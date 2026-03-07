@@ -81,7 +81,7 @@ namespace PickAndPlace.Views
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-
+            _mainController.Stop();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -137,6 +137,9 @@ namespace PickAndPlace.Views
         private void btnStop_Click(object sender, RoutedEventArgs e)
         {
             _mainController.Stop();
+            btnStart.IsEnabled = true;
+            btnStop.IsEnabled = false;
+            btnTest.IsEnabled = false;
         }
 
         internal void SetLoadingService(string content)
@@ -359,6 +362,11 @@ namespace PickAndPlace.Views
                 InspectionStatus = status ? (int)(StatusState.Ok) : (int)(StatusState.Ng);
                 OnPropertyChanged(nameof(InspectionStatus));
             }));
+        }
+
+        private void Window_Closing_1(object sender, CancelEventArgs e)
+        {
+
         }
     }
 }

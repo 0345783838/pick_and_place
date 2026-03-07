@@ -18,6 +18,10 @@ Csv = decouple.Csv
 
 CALIB_FILE_PATH = config('CALIB_FILE_PATH')
 TEMPLATE_PATH = config('TEMPLATE_PATH')
+TEMPLATE_2_PATH = config('TEMPLATE_2_PATH')
+
+OFFSET_X = config('OFFSET_X', cast=float)
+OFFSET_Y = config('OFFSET_Y', cast=float)
 
 IMAGE_MATCHING_DLL = config('IMAGE_MATCHING_DLL')
 IMAGE_MATCHING_MAX_COUNT = config('IMAGE_MATCHING_MAX_COUNT', cast=int)
@@ -31,6 +35,10 @@ IMAGE_MATCHING_SCALE = config('IMAGE_MATCHING_SCALE', cast=lambda v: [float(s.st
 calib_file_path = CALIB_FILE_PATH
 calib = Calibration2D(calib_file_path)
 template = cv2.imread(TEMPLATE_PATH, cv2.IMREAD_GRAYSCALE)
+template_2 = cv2.imread(TEMPLATE_2_PATH, cv2.IMREAD_GRAYSCALE)
+
+offset_x = OFFSET_X
+offset_y = OFFSET_Y
 
 image_matcher = ImageMatcher(IMAGE_MATCHING_DLL,
                              IMAGE_MATCHING_MAX_COUNT,
@@ -49,5 +57,8 @@ class BaseService:
             self.calib_file_path = calib_file_path
             self.image_matcher = image_matcher
             self.template = template
+            self.template_2 = template_2
+            self.offset_x = offset_x
+            self.offset_y = offset_y
         else:
             pass

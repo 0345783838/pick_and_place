@@ -84,8 +84,11 @@ namespace PickAndPlace.Controller
         }
         internal void Stop()
         {
-            _camera.Stop();
-            _camera.Close();
+            if (_camera != null)
+            {
+                _camera.Stop();
+                _camera.Close();
+            }
         }
 
         private bool CheckAndStartEngine()
@@ -153,7 +156,7 @@ namespace PickAndPlace.Controller
         internal void ProcessImage()
         {
             var bitmap = _camera.GetBitmap();
-            //var bitmap = new System.Drawing.Bitmap(@"D:\huynhvc\OTHERS\pick_and_place\test\pcb\Image_20260305144705660.bmp");
+            //var bitmap = new System.Drawing.Bitmap(@"D:\huynhvc\OTHERS\pick_and_place\APP\Image_20260307110740938.bmp");
             _mainWindow.UpdateImage(bitmap);
 
             var emguCvImage = new Image<Bgr, byte>(bitmap);
@@ -165,7 +168,7 @@ namespace PickAndPlace.Controller
                 {
                     _mainWindow.UpdateImage(Converter.Base64ToBitmap(res.ResImg));
                     _mainWindow.UpdateCalculateResult((double)res.Score, (double)res.ImageX, (double)res.ImageY, (double)res.ImageAngle, (double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
-                    //_robot.Pick((double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
+                    _robot.Pick((double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
                 }
 
                 _mainWindow.UpdateStatistics(res.Result);

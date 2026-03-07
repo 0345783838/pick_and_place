@@ -16,9 +16,12 @@ namespace DiskInspection.Controllers
             {
                 System.Diagnostics.Process p = new System.Diagnostics.Process();
                 System.Diagnostics.ProcessStartInfo info = new System.Diagnostics.ProcessStartInfo();
-                info.FileName = "main.exe";
-                info.UseShellExecute = true;
+                info.FileName = "cmd.exe";
+                info.Arguments = "/c main.exe";
+                info.UseShellExecute = false;
                 info.CreateNoWindow = true;
+                //info.RedirectStandardOutput = true;
+                //info.RedirectStandardError = true;
                 info.WorkingDirectory = "plugin";
                 info.Arguments = "/c main.exe";
                 p.StartInfo = info;
