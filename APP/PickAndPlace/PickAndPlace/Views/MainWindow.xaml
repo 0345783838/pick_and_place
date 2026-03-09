@@ -76,7 +76,7 @@
                                 Margin="5,0,5,0"
                                 Click="btnCalibEyeToHand2D_Click"
                                 Style="{StaticResource btToolBarStyle}"
-                                ToolTip="Offine Mode">
+                                ToolTip="Robot Calibration">
                                 <Image
                                     Width="45"
                                     Height="45"
@@ -85,11 +85,51 @@
                             </Button>
                             <Separator />
                             <Button
+                                x:Name="btnModelsManager"
+                                Margin="0,0,0,0"
+                                Click="btnModelsManager_Click"
+                                Style="{StaticResource btToolBarStyle}"
+                                ToolTip="Models Manager">
+                                <Image
+                                    Width="50"
+                                    Height="50"
+                                    Source="/Resources/Icons/condition.png"
+                                    Style="{DynamicResource imageButton}" />
+                            </Button>
+                            <Separator />
+
+                            <StackPanel
+                                Margin="0,-15,3,0"
+                                VerticalAlignment="Center"
+                                Orientation="Vertical">
+                                <Label
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Content="Select Model"
+                                    FontSize="12" />
+                                <ComboBox
+                                    x:Name="cbbModelNames"
+                                    Width="170"
+                                    Height="40"
+                                    Margin="5,0,0,0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Background="#FFDDDDDD"
+                                    BorderBrush="Gray"
+                                    BorderThickness="1"
+                                    FontSize="14"
+                                    FontWeight="Bold"
+                                    Foreground="DarkBlue"
+                                    SelectedIndex="0" />
+                            </StackPanel>
+                            <Separator />
+
+                            <Button
                                 x:Name="btnStart"
                                 Margin="5,0,5,0"
                                 Click="btnStart_Click"
                                 Style="{StaticResource btToolBarStyle}"
-                                ToolTip="-Run">
+                                ToolTip="Start">
                                 <Image
                                     x:Name="imBtnStart"
                                     Width="50"
@@ -119,7 +159,7 @@
                                 Click="btnTest_Click"
                                 IsEnabled="False"
                                 Style="{StaticResource btToolBarStyle}"
-                                ToolTip="Stop">
+                                ToolTip="Capture Once">
                                 <Image
                                     Width="50"
                                     Height="50"

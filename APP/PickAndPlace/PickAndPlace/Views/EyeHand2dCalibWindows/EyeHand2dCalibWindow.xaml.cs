@@ -215,10 +215,14 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
                 error.ShowDialog();
                 return;
             }
-            _isValidating = false;
+        
             btnSelectValidPoint.StartColor = System.Windows.Media.Color.FromRgb(0xC8, 0xAA, 0xAA);
             btnSelectValidPoint.EndColor = System.Windows.Media.Color.FromRgb(0x1C, 0x4D, 0x8D);
-            UpdateImage(_curImage.Bitmap);
+            if (_isValidating)
+            {
+                _isValidating = false;
+                UpdateImage(_curImage.Bitmap);
+            }
             if (!_isSelecting)
             {
                 imbImage.Cursor = Cursors.Cross;
@@ -472,10 +476,15 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
                 error.ShowDialog();
                 return;
             }
-            _isSelecting = false;
+       
             btnSelectPoint.StartColor = System.Windows.Media.Color.FromRgb(0xC8, 0xAA, 0xAA);
             btnSelectPoint.EndColor = System.Windows.Media.Color.FromRgb(0x1C, 0x4D, 0x8D);
             UpdateImage(_curImage.Bitmap);
+            if (_isSelecting)
+            {
+                _isSelecting = false;
+                UpdateImage(_curImage.Bitmap);
+            }
             if (!_isValidating)
             {
                 imbImage.Cursor = Cursors.Cross;

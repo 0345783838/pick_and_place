@@ -6,10 +6,12 @@ using PickAndPlace.Models;
 using PickAndPlace.Services;
 using PickAndPlace.Utils;
 using PickAndPlace.Views.EyeHand2dCalibWindows;
+using PickAndPlace.Views.ModelsManagerWindows;
 using PickAndPlace.Views.SettingsWindows;
 using PickAndPlace.Views.UtilitiesWindows;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
@@ -51,6 +53,23 @@ namespace PickAndPlace.Views
         private MainController _mainController;
 
         public int AiStatus { get; set; } = (int)(StatusState.Unknown);
+
+        public ObservableCollection<ModelInfo> ModelsList { get; set; } = new ObservableCollection<ModelInfo>();
+
+        private ModelInfo _selectedModel;
+        public ModelInfo SelectedModel
+        {
+            get => _selectedModel;
+            set
+            {
+                if (_selectedModel != value)
+                {
+                    _selectedModel = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
 
         public MainWindow()
         {
@@ -367,6 +386,16 @@ namespace PickAndPlace.Views
         private void Window_Closing_1(object sender, CancelEventArgs e)
         {
 
+        }
+
+        private void btnModelsManager_Click(object sender, RoutedEventArgs e)
+        {
+            ModelsManagerWindow window;
+            if (SelectedModel == null)
+                window = new ModelsManagerWindow(this, string.Empty);
+            else
+                window = new ModelsManagerWindow(this, SelectedModel.Name);
+            window.ShowDialog();
         }
     }
 }

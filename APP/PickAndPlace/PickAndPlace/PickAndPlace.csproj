@@ -155,6 +155,7 @@
     <Compile Include="Models\Calib2DResponse.cs" />
     <Compile Include="Models\GetCoordResponse.cs" />
     <Compile Include="Models\LogItem.cs" />
+    <Compile Include="Models\ModelInfo.cs" />
     <Compile Include="Models\MyEnum.cs" />
     <Compile Include="Models\PairPoint.cs" />
     <Compile Include="Services\ErrrorService.cs" />
@@ -167,6 +168,12 @@
     </Compile>
     <Compile Include="Views\IntrinsicCalibWindows\IntrinsicCalibWindow.xaml.cs">
       <DependentUpon>IntrinsicCalibWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ModelsManagerWindows\AddModelNameWindow.xaml.cs">
+      <DependentUpon>AddModelNameWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ModelsManagerWindows\ModelsManagerWindow.xaml.cs">
+      <DependentUpon>ModelsManagerWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SettingsWindows\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
@@ -221,6 +228,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\ModelsManagerWindows\AddModelNameWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ModelsManagerWindows\ModelsManagerWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\SettingsWindows\SettingsWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -256,6 +271,12 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Resource Include="Resources\Icons\save-2.png" />
+    <Resource Include="Resources\Icons\pcb_rect.png" />
+    <Resource Include="Resources\Icons\bin.png" />
+    <Resource Include="Resources\Icons\newfileicon.png" />
+    <Resource Include="Resources\Icons\refresh.ico" />
+    <Resource Include="Resources\Icons\condition.png" />
     <Resource Include="Resources\Icons\screenshot.png" />
     <Resource Include="Resources\Icons\inbox.png" />
     <Resource Include="robot-arm.ico" />
