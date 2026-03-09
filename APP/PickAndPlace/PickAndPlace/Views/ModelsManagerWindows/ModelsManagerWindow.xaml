@@ -45,6 +45,7 @@
                             Cursor="Hand"
                             FontSize="15"
                             FontWeight="Regular"
+                            DisplayMemberPath="Name"
                             ForceCursor="True"
                             IsReadOnly="True"
                             ItemsSource="{Binding ModelsList}"
@@ -157,7 +158,7 @@
                                         Content="PCB Width"
                                         FontSize="9" />
                                     <TextBox
-                                        Name="tbImageX"
+                                        Name="tbImageWidth"
                                         Width="65"
                                         Height="25"
                                         Margin="5,-5,0,0"

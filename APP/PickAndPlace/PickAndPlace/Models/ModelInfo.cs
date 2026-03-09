@@ -16,10 +16,13 @@ namespace PickAndPlace.Models
         public double Height { get; set; }
         public string CreatedTime { get; set; }
         public ModelInfo(string name, double width, double height, string createdTime) => (Name, Width, Height, CreatedTime) = (name, width, height, createdTime);
+        public ModelInfo() { }
         public ModelInfo(string name)
         {
             Name = name;
             CreatedTime = DateTime.Now.ToString();
+            Width = 0;
+            Height = 0;
         }
         public static List<ModelInfo> LoadModelsList()
         {
@@ -29,15 +32,16 @@ namespace PickAndPlace.Models
             for (int i = 0; i < pathList.Length; i++)
             {
                 string name = Path.GetFileName(pathList[i]);
-                modelNamesList.Add(LoadModelByName(name));
-
+                var model = LoadModelByName(name);
+                if (model != null)
+                    modelNamesList.Add(model);
             }
             return modelNamesList;
         }
         public static ModelInfo LoadModelByName(string modelName)
         {
             ModelInfo model = null;
-            string path = Properties.Settings.Default.MODELS_PATH + modelName + "/" + modelName + ".json";
+            string path = Properties.Settings.Default.MODELS_PATH + "/" + modelName + "/" + modelName + ".json";
             try
             {
                 string str = File.ReadAllText(path);

@@ -41,11 +41,10 @@ namespace PickAndPlace.Views.ModelsManagerWindows
             else
             {
                 var items = _modelManagerWindow.ModelsList;
-                if (!items.Select(x => x.Name).Contains(modelName))
+                if (items == null || !items.Select(x => x.Name).Contains(modelName))
                 {
                     ModelInfo model = new ModelInfo(modelName);
                     model.SaveModel();
-
                     _modelManagerWindow.UpdateNewModelName(model);
                     this.Close();
                 }

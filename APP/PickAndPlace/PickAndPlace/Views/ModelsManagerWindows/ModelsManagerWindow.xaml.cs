@@ -1,4 +1,5 @@
 ﻿using PickAndPlace.Models;
+using PickAndPlace.Views.UtilitiesWindows;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -63,12 +64,26 @@ namespace PickAndPlace.Views.ModelsManagerWindows
             {
                 ModelsList.Add(item);
             }
-            SelectedModel = ModelsList.FirstOrDefault(x => x.Name == selectedModel);
+            if (selectedModel == string.Empty)
+            {
+                SelectedModel = null;
+            }
+            else
+            {
+                SelectedModel = ModelsList.FirstOrDefault(x => x.Name == selectedModel);
+            }
         }
 
         private void btReload_Click(object sender, RoutedEventArgs e)
         {
-
+            var curModel = SelectedModel;
+            ModelsList.Clear();
+            var modelList = ModelInfo.LoadModelsList();
+            foreach (var item in modelList)
+            {
+                ModelsList.Add(item);
+            }
+            SelectedModel = curModel;
         }
 
         private void btAddModel_Click(object sender, RoutedEventArgs e)
@@ -100,7 +115,15 @@ namespace PickAndPlace.Views.ModelsManagerWindows
 
         private void btnSave_MouseDown(object sender, MouseButtonEventArgs e)
         {
-
+            if (Convert.ToInt32(tbImageWidth.Text) == 0 || Convert.ToInt32(tbPcbHeight.Text) == 0)
+            {
+                var box = new ErrorWindow("Width and Height must be greater than 0!\rChiều rộng và chiều cao PCB phải lớn hơn 0!");
+                box.ShowDialog();
+                return;
+            }
+            SelectedModel.SaveModel();
+            var info = new InformationWindow("Save successfully!\rLưu thành công!");
+            info.ShowDialog();
         }
 
         internal void UpdateNewModelName(ModelInfo model)
