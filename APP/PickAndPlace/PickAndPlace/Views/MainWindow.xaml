@@ -117,10 +117,13 @@
                                     Background="#FFDDDDDD"
                                     BorderBrush="Gray"
                                     BorderThickness="1"
+                                    DisplayMemberPath="Name"
                                     FontSize="14"
                                     FontWeight="Bold"
                                     Foreground="DarkBlue"
-                                    SelectedIndex="0" />
+                                    ItemsSource="{Binding ModelsList}"
+                                    SelectedIndex="0"
+                                    SelectedItem="{Binding SelectedModel, Mode=TwoWay}" />
                             </StackPanel>
                             <Separator />
 

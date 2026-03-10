@@ -46,6 +46,12 @@ namespace PickAndPlace.Models
             {
                 string str = File.ReadAllText(path);
                 model = JsonConvert.DeserializeObject<ModelInfo>(str);
+                if (model.Height == 0 || model.Width == 0)
+                {
+                    // Remove invalid model
+                    Directory.Delete(IO.GetFolderPath(path), true);
+                    return null;
+                }
             }
             catch (Exception ex)
             {
@@ -66,6 +72,22 @@ namespace PickAndPlace.Models
             {
                 return;
             }
+        }
+        public bool Delete(string modelName = null)
+        {
+            if (modelName == null)
+                modelName = this.Name;
+            string modelPath = Properties.Settings.Default.MODELS_PATH + "/" + modelName + "/" + modelName + ".json";
+            try
+            {
+                File.Delete(modelPath);
+                Directory.Delete(Properties.Settings.Default.MODELS_PATH + "/" + modelName, true);
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

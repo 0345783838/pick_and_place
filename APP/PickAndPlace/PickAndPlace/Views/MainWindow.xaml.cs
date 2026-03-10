@@ -76,9 +76,20 @@ namespace PickAndPlace.Views
             InitializeComponent();
             _mainController = new MainController(this);
             DataContext = this;
+            Init();
             InitStatistics();
             Logger.Logs.CollectionChanged += Logs_CollectionChanged;
         }
+
+        private void Init()
+        {
+            var modelsList = ModelInfo.LoadModelsList();
+            foreach (var item in modelsList)
+            {
+                ModelsList.Add(item);
+            }
+        }
+
         private void Logs_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (e.Action !=
@@ -130,6 +141,12 @@ namespace PickAndPlace.Views
 
         private void btnStart_Click(object sender, RoutedEventArgs e)
         {
+            if (SelectedModel == null)
+            {
+                var box = new ErrorWindow("Please select a running model!\rVui lòng chọn model chạy!");
+                box.ShowDialog();
+                return;
+            }
             WaitingWindow wait = new WaitingWindow("Checking running conditions...\rKiểm tra điều kiện chạy");
             bool startOK = false;
             new Task(() =>
@@ -235,7 +252,7 @@ namespace PickAndPlace.Views
         private void btnTest_Click(object sender, RoutedEventArgs e)
         {
             Task.Run(() =>
-            _mainController.ProcessImage());
+            _mainController.ProcessImage(SelectedModel));
         }
         public void UpdateImage(System.Drawing.Bitmap image)
         {
@@ -383,11 +400,6 @@ namespace PickAndPlace.Views
             }));
         }
 
-        private void Window_Closing_1(object sender, CancelEventArgs e)
-        {
-
-        }
-
         private void btnModelsManager_Click(object sender, RoutedEventArgs e)
         {
             ModelsManagerWindow window;
@@ -396,6 +408,17 @@ namespace PickAndPlace.Views
             else
                 window = new ModelsManagerWindow(this, SelectedModel.Name);
             window.ShowDialog();
+        }
+
+        internal void Reload(string name)
+        {
+            ModelsList.Clear();
+            var newList = ModelInfo.LoadModelsList();
+            foreach (var item in newList)
+            {
+                ModelsList.Add(item);
+            }
+            SelectedModel = ModelsList.FirstOrDefault(x => x.Name == name);
         }
     }
 }

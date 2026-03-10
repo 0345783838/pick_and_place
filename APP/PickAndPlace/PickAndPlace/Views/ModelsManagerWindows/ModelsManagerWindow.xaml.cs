@@ -43,10 +43,16 @@ namespace PickAndPlace.Views.ModelsManagerWindows
                 if (_selectedModel != value)
                 {
                     _selectedModel = value;
+                    CanSave = false;
                     OnPropertyChanged();
+                    OnPropertyChanged(nameof(CanSave));
+                    OnPropertyChanged(nameof(IsMoldelSelected));
                 }
             }
         }
+
+        public bool CanSave { get; set; } = false;
+        public bool IsMoldelSelected => SelectedModel != null;
 
         MainWindow _mainWindow;
         public ModelsManagerWindow(MainWindow window, string selectedModel)
@@ -76,14 +82,14 @@ namespace PickAndPlace.Views.ModelsManagerWindows
 
         private void btReload_Click(object sender, RoutedEventArgs e)
         {
-            var curModel = SelectedModel;
+            var curModelName = SelectedModel.Name;
             ModelsList.Clear();
             var modelList = ModelInfo.LoadModelsList();
             foreach (var item in modelList)
             {
                 ModelsList.Add(item);
             }
-            SelectedModel = curModel;
+            SelectedModel = ModelsList.FirstOrDefault(x => x.Name == curModelName);
         }
 
         private void btAddModel_Click(object sender, RoutedEventArgs e)
@@ -94,17 +100,26 @@ namespace PickAndPlace.Views.ModelsManagerWindows
 
         private void btRemoveModel_Click(object sender, RoutedEventArgs e)
         {
+            if (SelectedModel != null)
+            {
+                var warning = new WarningWindow($"Are you sure to detele model {SelectedModel.Name}?\rBạn có muốn xóa model {SelectedModel.Name}?");
+                var res = warning.ShowDialog();
 
-        }
-
-        private void cbbModelNames_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
+                SelectedModel.Delete();
+                btReload_Click(null, null);
+            }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-
+            if (SelectedModel == null)
+            {
+                _mainWindow.Reload(string.Empty);
+            }
+            else
+            {
+                _mainWindow.Reload(SelectedModel.Name);
+            }
         }
 
         private void NumberValidationTextBox(object sender, TextCompositionEventArgs e)
@@ -121,7 +136,10 @@ namespace PickAndPlace.Views.ModelsManagerWindows
                 box.ShowDialog();
                 return;
             }
+            SelectedModel.Height = Convert.ToInt32(tbPcbHeight.Text);
+            SelectedModel.Width = Convert.ToInt32(tbImageWidth.Text);
             SelectedModel.SaveModel();
+            btReload_Click(null, null);
             var info = new InformationWindow("Save successfully!\rLưu thành công!");
             info.ShowDialog();
         }
@@ -130,6 +148,54 @@ namespace PickAndPlace.Views.ModelsManagerWindows
         {
             ModelsList.Add(model);
             SelectedModel = model;
+        }
+
+        private void tbImageWidth_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (SelectedModel == null)
+            {
+                return;
+            }
+            TextBox tb = sender as TextBox;
+            string text = tb.Text;
+
+            if (Convert.ToInt32(text) != SelectedModel.Width && Convert.ToInt32(tbPcbHeight.Text) != 0 && Convert.ToInt32(text) != 0)
+            {
+                CanSave = true;
+                OnPropertyChanged(nameof(CanSave));
+            }
+            else
+            {
+                CanSave = false;
+                OnPropertyChanged(nameof(CanSave));
+            }
+        }
+
+        private void tbPcbHeight_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (SelectedModel == null)
+            {
+                return;
+            }
+            TextBox tb = sender as TextBox;
+            string text = tb.Text;
+
+            if (Convert.ToInt32(text) != SelectedModel.Height && Convert.ToInt32(tbPcbHeight.Text) != 0 && Convert.ToInt32(text) != 0)
+            {
+                CanSave = true;
+                OnPropertyChanged(nameof(CanSave));
+            }
+            else
+            {
+                CanSave = false;
+                OnPropertyChanged(nameof(CanSave));
+            }
+        }
+
+        private void btnTemplateManager_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new TemplatesSettingWindow(this);
+            window.ShowDialog();
         }
     }
 }

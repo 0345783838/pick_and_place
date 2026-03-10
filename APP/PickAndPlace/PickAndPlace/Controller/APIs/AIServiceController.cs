@@ -41,13 +41,15 @@ namespace DiskInspection.Controllers
             }
             return false;
         }
+
         public static void CloseProcessExisting()
         {
             Process[] processes = Process.GetProcessesByName("main");
             foreach (var process in processes)
             {
-                process.CloseMainWindow();
-                process.Close();
+                process.Kill();
+                process.WaitForExit();
+                process.Dispose();
             }
         }
     }

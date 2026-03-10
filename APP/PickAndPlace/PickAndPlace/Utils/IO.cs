@@ -27,6 +27,10 @@ namespace PickAndPlace.Utils
         {
             return Path.GetFileName(path);
         }
+        public static string GetFolderPath(string path)
+        {
+            return Path.GetDirectoryName(path);
+        }
 
         public static string GetParentFolderFromFilePath(string path)
         {

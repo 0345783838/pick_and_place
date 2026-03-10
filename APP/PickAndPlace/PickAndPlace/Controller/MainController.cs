@@ -5,6 +5,7 @@ using PickAndPlace.Controller.Robot;
 using PickAndPlace.Controllers;
 using PickAndPlace.Controllers.APIs;
 using PickAndPlace.Controllers.Camera;
+using PickAndPlace.Models;
 using PickAndPlace.Utils;
 using PickAndPlace.Views;
 using System;
@@ -90,6 +91,15 @@ namespace PickAndPlace.Controller
                 _camera.Close();
             }
         }
+        internal void Close()
+        {
+            if (_camera != null)
+            {
+                _camera.Stop();
+                _camera.Close();
+            }
+            AIServiceController.CloseProcessExisting();
+        }
 
         private bool CheckAndStartEngine()
         {
@@ -153,15 +163,16 @@ namespace PickAndPlace.Controller
             return true;
         }
 
-        internal void ProcessImage()
+        internal void ProcessImage(ModelInfo model)
         {
             var bitmap = _camera.GetBitmap();
-            //var bitmap = new System.Drawing.Bitmap(@"D:\huynhvc\OTHERS\pick_and_place\APP\Image_20260307110740938.bmp");
+            AppLogger.Instance.Info("DONE Capturing Image", "SYSTEM");
             _mainWindow.UpdateImage(bitmap);
 
             var emguCvImage = new Image<Bgr, byte>(bitmap);
 
-            var res = APICommunication.GetRealCoord(_param.ApiUrlAi, emguCvImage, 608, 508);
+            var res = APICommunication.GetRealCoord(_param.ApiUrlAi, emguCvImage, model.Width, model.Height);
+            AppLogger.Instance.Info("DONE Calculating Real Coodinates", "SYSTEM");
             if (res != null)
             {
                 if (res.Result)
@@ -169,6 +180,7 @@ namespace PickAndPlace.Controller
                     _mainWindow.UpdateImage(Converter.Base64ToBitmap(res.ResImg));
                     _mainWindow.UpdateCalculateResult((double)res.Score, (double)res.ImageX, (double)res.ImageY, (double)res.ImageAngle, (double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
                     _robot.Pick((double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
+                    AppLogger.Instance.Info($"Sent Pick Command X: {res.RobotX} Y: {res.RobotY} Angle: {res.RobotAngle}", "SYSTEM");
                 }
 
                 _mainWindow.UpdateStatistics(res.Result);
