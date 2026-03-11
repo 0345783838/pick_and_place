@@ -250,5 +250,17 @@ namespace PickAndPlace.Properties {
                 this["MODELS_PATH"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("load_templates")]
+        public string EndPointLoadTemplates {
+            get {
+                return ((string)(this["EndPointLoadTemplates"]));
+            }
+            set {
+                this["EndPointLoadTemplates"] = value;
+            }
+        }
     }
 }

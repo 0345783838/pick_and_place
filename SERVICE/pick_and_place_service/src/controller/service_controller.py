@@ -60,6 +60,26 @@ def cal_robot_coord(image: UploadFile = File(...), pcb_size: str = Form(...)):
     return res
 
 
+@robot_router.post(path='/load_templates')
+def load_templates(images: List[UploadFile] = File(...)):
+    imgs = []
+    for image in images:
+        img_str = image.file.read()
+        if img_str is None or img_str == b'':
+            # Cannot read image
+            return HTTPException(status_code=400, detail="Invalid input")
+        try:
+            np_img = np.fromstring(img_str, np.uint8)
+            img = cv2.imdecode(np_img, flags=1)
+            if img is None:
+                raise HTTPException(status_code=400, detail="Invalid input")
+            imgs.append(img)
+        except Exception as ex:
+            raise HTTPException(status_code=400, detail="Invalid input")
+
+    res = cal_robot_coord_service.update_templates(imgs)
+    return res
+
 @robot_router.post(path='/calib_2d')
 def calib_2d(data: PointPairs):
     res = calib_2d_robot.calib_2d(data)

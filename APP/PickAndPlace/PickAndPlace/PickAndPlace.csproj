@@ -158,6 +158,7 @@
     <Compile Include="Models\ModelInfo.cs" />
     <Compile Include="Models\MyEnum.cs" />
     <Compile Include="Models\PairPoint.cs" />
+    <Compile Include="Models\Template.cs" />
     <Compile Include="Services\ErrrorService.cs" />
     <Compile Include="Utils\BindingConverter.cs" />
     <Compile Include="Utils\Converter.cs" />
@@ -278,6 +279,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Resource Include="Resources\Icons\pencil_draw.png" />
     <Resource Include="Resources\Icons\image-setting.png" />
     <Resource Include="Resources\Icons\delete.png" />
     <Resource Include="Resources\Icons\save-2.png" />

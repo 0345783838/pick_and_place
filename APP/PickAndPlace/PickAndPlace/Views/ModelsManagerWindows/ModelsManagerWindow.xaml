@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:myControl="clr-namespace:Heal.MyControl;assembly=ImageCtlWPF"
     xmlns:uc="clr-namespace:PickAndPlace.Resources.Styles"
+    xmlns:utils="clr-namespace:PickAndPlace.Utils"
     Title="Model Manager"
     Width="600"
     Height="630"
@@ -15,6 +16,10 @@
     ResizeMode="NoResize"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
+    <Window.Resources>
+        <utils:BitmapSourceConverter x:Key="BitmapSourceConverter" />
+        <utils:FileNameOnlyConverter x:Key="FileNameOnlyConverter" />
+    </Window.Resources>
     <Border
         Margin="10"
         BorderBrush="Gray"
@@ -126,7 +131,7 @@
                                 </StackPanel>
                                 <StackPanel Orientation="Horizontal">
                                     <Label Content="Templates:" />
-                                    <Label x:Name="lbTemplate" Content="{Binding SelectedModel.Height, FallbackValue='-----'}" />
+                                    <Label x:Name="lbTemplate" Content="{Binding SelectedModel.Templates.Count, FallbackValue='-----'}" />
                                 </StackPanel>
                             </StackPanel>
                         </ScrollViewer>
@@ -231,10 +236,61 @@
                             <Grid Grid.Column="2">
                                 <GroupBox Margin="5" Header="Template Setup">
                                     <Grid>
-                                        <myControl:ImageBox
-                                            x:Name="imbTemplate"
-                                            Margin="5"
-                                            Background="DarkGray" />
+                                        <ListBox
+                                            x:Name="lbThumbList"
+                                            Grid.Row="1"
+                                            Margin="5,5,5,5"
+                                            BorderThickness="0"
+                                            ItemsSource="{Binding SelectedModel.Templates}"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                            ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                                            <ListBox.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                    <GradientStop Offset="0" Color="#d6cfc7" />
+                                                    <GradientStop Offset="1" Color="#d9dddc" />
+                                                </LinearGradientBrush>
+                                            </ListBox.Background>
+                                            <ListBox.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal" />
+                                                </ItemsPanelTemplate>
+                                            </ListBox.ItemsPanel>
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border
+                                                        Margin="5,5,5,0"
+                                                        BorderBrush="Transparent"
+                                                        BorderThickness="2">
+                                                        <StackPanel Width="100">
+                                                            <Image
+                                                                Width="100"
+                                                                Height="80"
+                                                                Source="{Binding Image, Converter={StaticResource BitmapSourceConverter}}"
+                                                                Stretch="Uniform" />
+                                                            <Label
+                                                                Margin="0,0,0,0"
+                                                                HorizontalAlignment="Center"
+                                                                Content="{Binding ImagePath, Converter={StaticResource FileNameOnlyConverter}}"
+                                                                FontSize="12" />
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+
+                                            <ListBox.ItemContainerStyle>
+                                                <Style TargetType="ListBoxItem">
+                                                    <Setter Property="Padding" Value="0" />
+                                                    <Setter Property="BorderThickness" Value="0" />
+                                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsSelected" Value="True">
+                                                            <Setter Property="BorderBrush" Value="DodgerBlue" />
+                                                            <Setter Property="BorderThickness" Value="2" />
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </ListBox.ItemContainerStyle>
+                                        </ListBox>
                                         <StackPanel
                                             Margin="5"
                                             HorizontalAlignment="Right"
@@ -246,14 +302,15 @@
                                                 Height="40"
                                                 Margin="0,0,0,0"
                                                 Click="btnTemplateManager_Click"
-                                                DockPanel.Dock="Right">
+                                                DockPanel.Dock="Right"
+                                                IsEnabled="{Binding IsMoldelSelected}">
                                                 <Image
                                                     Width="32"
                                                     Height="32"
-                                                    Source="/Resources/Icons/image-setting.png" />
+                                                    Source="/Resources/Icons/image-setting.png"
+                                                    Style="{DynamicResource imageButton}" />
                                             </Button>
                                         </StackPanel>
-
                                     </Grid>
                                 </GroupBox>
                             </Grid>

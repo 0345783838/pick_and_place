@@ -3,6 +3,7 @@
 APP/PickAndPlace/PickAndPlace/.vs/
 APP/PickAndPlace/PickAndPlace/obj/Debug/*
 APP/PickAndPlace/PickAndPlace/bin/Debug/*
+APP/PickAndPlace/PickAndPlace/bin/
 
 # Service
 SERVICE/pick_and_place_service/.idea/*

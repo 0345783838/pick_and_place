@@ -11,6 +11,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
+using System.Drawing.Imaging;
+using System.IO;
 
 namespace PickAndPlace.Controllers.APIs
 {
@@ -252,6 +254,54 @@ namespace PickAndPlace.Controllers.APIs
                 return true;
             }
             else
+            {
+                return false;
+            }
+        }
+
+        internal static bool LoadTemplates(string url, List<Image<Bgr, byte>> imageList, int timeout = 2000)
+        {
+            try
+            {
+                var options = new RestClientOptions(url)
+                {
+                    Timeout = TimeSpan.FromMilliseconds(timeout)
+                };
+
+                var client = new RestClient(options);
+
+                var request = new RestRequest(_param.EndPointLoadTemplates, Method.Post);
+                request.AlwaysMultipartFormData = true;
+
+                int index = 0;
+
+                // Add File
+                foreach (var img in imageList)
+                {
+                    byte[] jpegData = img.ToJpegData();
+                    request.AddFile("images", jpegData, $"template_{index}.jpg");
+                    index++;
+                }
+
+                var response = client.Execute(request);
+                if (response.StatusCode == System.Net.HttpStatusCode.OK)
+                {
+                    try
+                    {
+                        return JsonConvert.DeserializeObject<GetCoordResponse>(response.Content).Result;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Debug(ex.Message);
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch
             {
                 return false;
             }

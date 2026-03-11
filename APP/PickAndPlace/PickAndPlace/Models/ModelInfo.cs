@@ -2,25 +2,46 @@
 using PickAndPlace.Utils;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.UI;
 
 namespace PickAndPlace.Models
 {
-    public class ModelInfo
+    public class ModelInfo: INotifyPropertyChanged
     {
+        Properties.Settings _param = Properties.Settings.Default;
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         public string Name { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
         public string CreatedTime { get; set; }
-        public ModelInfo(string name, double width, double height, string createdTime) => (Name, Width, Height, CreatedTime) = (name, width, height, createdTime);
+        private List<Template> _templates;
+        public List<Template> Templates
+        {
+            get => _templates;
+            set
+            {
+                if (_templates != value)
+                {
+                    _templates = value;
+                    OnPropertyChanged(nameof(Templates));
+                }
+            }
+        }
+
+
+        public ModelInfo(string name, double width, double height, List<Template> templates, string createdTime) => (Name, Width, Height, Templates, CreatedTime) = (name, width, height, templates, createdTime);
         public ModelInfo() { }
         public ModelInfo(string name)
         {
             Name = name;
             CreatedTime = DateTime.Now.ToString();
+            Templates = new List<Template>();
             Width = 0;
             Height = 0;
         }
@@ -46,7 +67,7 @@ namespace PickAndPlace.Models
             {
                 string str = File.ReadAllText(path);
                 model = JsonConvert.DeserializeObject<ModelInfo>(str);
-                if (model.Height == 0 || model.Width == 0)
+                if (model.Height == 0 || model.Width == 0 || model.Templates == null || model.Templates.Count == 0)
                 {
                     // Remove invalid model
                     Directory.Delete(IO.GetFolderPath(path), true);
@@ -67,6 +88,20 @@ namespace PickAndPlace.Models
                 IO.CreateFolderIfNotExists(modelPath);
                 string json = JsonConvert.SerializeObject(this);
                 File.WriteAllText(modelPath + "/" + this.Name + ".json", json);
+
+                // Remove all old images in folder to save new ones
+                string[] pathList = Directory.GetFiles(modelPath);
+                for (int i = 0; i < pathList.Length; i++)
+                {
+                    if (!pathList[i].EndsWith(".json"))
+                        File.Delete(pathList[i]);
+                }
+
+                // Save Images
+                foreach (var template in this.Templates)
+                {
+                    template.Image.Save(template.ImagePath);
+                }
             }
             catch (Exception ex)
             {

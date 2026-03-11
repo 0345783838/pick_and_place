@@ -1,4 +1,6 @@
-﻿using PickAndPlace.Models;
+﻿using Emgu.CV;
+using Emgu.CV.Structure;
+using PickAndPlace.Models;
 using System;
 using System.Globalization;
 using System.IO;
@@ -20,6 +22,60 @@ namespace PickAndPlace.Utils
             return value;
         }
 
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value; // Không cần sử dụng ở đây, vì chỉ hiển thị tên file
+        }
+    }
+    public class FileNameOnlyConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is string path)
+            {
+                var parentFolder = IO.GetParentFolderFromFilePath(path);
+                var fileName = IO.GetFileName(path);
+                return $"{fileName}"; // Trả về tên file
+            }
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value; // Không cần sử dụng ở đây, vì chỉ hiển thị tên file
+        }
+    }
+    public class BitmapSourceConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is Image<Bgr, byte> image)
+            {
+                var bitmapSource = Converter.BitmapToBitmapSource(image.Bitmap);
+                return bitmapSource; // Trả về tên file
+            }
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value; // Không cần sử dụng ở đây, vì chỉ hiển thị tên file
+        }
+    }
+
+    public class LabelColorConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool type)
+            {
+                if (type == true)
+                {
+                    return "Black";
+                }
+            }
+            return "DarkGray";
+        }
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value; // Không cần sử dụng ở đây, vì chỉ hiển thị tên file

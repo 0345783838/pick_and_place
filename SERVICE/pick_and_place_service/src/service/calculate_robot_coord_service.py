@@ -11,7 +11,15 @@ import ast
 class CalculateRobotCoordService(BaseService):
     def __init__(self):
         super().__init__()
+        self.templates = []
         pass
+
+    def update_templates(self, templates):
+        for template in templates:
+            gray = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
+            self.templates.append(gray)
+
+        return DataResponse(Result=True, Message='Load Templates Successfully!')
 
     @staticmethod
     def _convert_2_base64(image):
@@ -23,13 +31,66 @@ class CalculateRobotCoordService(BaseService):
 
         return img_base64
 
+    # def cal_robot_coord(self, image, pcb_width, pcb_height):
+    #     img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #     matches = self.image_matcher.match(img_gray, self.template)
+    #     if len(matches) == 0:
+    #         matches = self.image_matcher.match(img_gray, self.template_2)
+    #         if len(matches) == 0:
+    #             return DataResponse(Result=False, Message='Không tìm thấy góc PCB')
+    #
+    #     result = matches[0]
+    #
+    #     angle = result.angle
+    #     left_bottom_x = result.left_bottom_x
+    #     left_bottom_y = result.left_bottom_y
+    #
+    #     print(left_bottom_x, left_bottom_y)
+    #
+    #     cx, cy, robot_angle = self.compute_robot_pose([left_bottom_x, left_bottom_y], angle, pcb_width, pcb_height)
+    #
+    #     cv2.polylines(image, [np.array(
+    #         [[result.left_top_x, result.left_top_y], [result.right_top_x, result.right_top_y],
+    #          [result.right_bottom_x, result.right_bottom_y], [result.left_bottom_x, result.left_bottom_y]], np.int32)],
+    #                   True, (0, 255, 0), 1)
+    #
+    #
+    #     # Get draw text pos
+    #     if result.left_top_x < result.right_top_x:
+    #         draw_x = int(result.left_top_x) - 100
+    #     else:
+    #         draw_x = int(result.right_top_x) - 100
+    #
+    #     if result.left_top_y < result.right_top_y:
+    #         draw_Y = int(result.left_top_y) - 50
+    #     else:
+    #         draw_Y = int(result.right_top_y) - 50
+    #
+    #     cv2.putText(image, f"Score: {result.score:.4f}", (draw_x, draw_Y-50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    #     cv2.putText(image, f"Angle: {angle:.4f} -- X: {left_bottom_x:.4f} -- Y: {left_bottom_y:.4f}", (draw_x, draw_Y), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+    #
+    #     return DataResponse(Result=True,
+    #                         Score=result.score,
+    #                         ResImg=self._convert_2_base64(image),
+    #                         ImageX=left_bottom_x,
+    #                         ImageY=left_bottom_y,
+    #                         ImageAngle=angle,
+    #                         RobotX=cx-self.offset_x,
+    #                         RobotY=cy+self.offset_y,
+    #                         RobotAngle=robot_angle
+    #                         )
+
     def cal_robot_coord(self, image, pcb_width, pcb_height):
         img_gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        matches = self.image_matcher.match(img_gray, self.template)
-        if len(matches) == 0:
-            matches = self.image_matcher.match(img_gray, self.template_2)
+
+        matches = []
+        for template in self.templates:
+            matches = self.image_matcher.match(img_gray, template)
             if len(matches) == 0:
-                return DataResponse(Result=False, Message='Không tìm thấy góc PCB')
+                continue
+
+        if len(matches) == 0:
+            return DataResponse(Result=False, Message='Không tìm thấy góc PCB')
 
         result = matches[0]
 
@@ -38,21 +99,6 @@ class CalculateRobotCoordService(BaseService):
         left_bottom_y = result.left_bottom_y
 
         print(left_bottom_x, left_bottom_y)
-
-        # # Calculate real PCB center coord
-        # corner_robot = self.calib.transform([left_bottom_x, left_bottom_y])
-        # rx, ry = corner_robot
-        # dx = pcb_width / 2
-        # dy = pcb_height / 2
-        #
-        # dx_r = dx * math.cos(angle) - dy * math.sin(angle)
-        # dy_r = dx * math.sin(angle) + dy * math.cos(angle)
-        #
-        # cx = rx + dx_r
-        # cy = ry + dy_r
-        #
-        # theta_offset = math.atan2(self.calib.matrix[1, 0], self.calib.matrix[0, 0])
-        # angle_robot = angle + theta_offset
 
         cx, cy, robot_angle = self.compute_robot_pose([left_bottom_x, left_bottom_y], angle, pcb_width, pcb_height)
 

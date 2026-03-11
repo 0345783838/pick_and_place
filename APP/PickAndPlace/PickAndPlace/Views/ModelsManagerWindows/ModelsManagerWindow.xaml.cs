@@ -194,8 +194,16 @@ namespace PickAndPlace.Views.ModelsManagerWindows
 
         private void btnTemplateManager_Click(object sender, RoutedEventArgs e)
         {
-            var window = new TemplatesSettingWindow(this);
+            var window = new TemplatesSettingWindow(this, SelectedModel);
             window.ShowDialog();
+        }
+
+        internal void UpdateModel(ModelInfo model)
+        {
+            SelectedModel = model;
+            if (SelectedModel.Templates.Count>0) CanSave = true;
+            else CanSave = false;
+            OnPropertyChanged(nameof(CanSave));
         }
     }
 }

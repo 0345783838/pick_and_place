@@ -27,6 +27,7 @@ namespace PickAndPlace.Controller
 
         public bool _serviceIsRun = false;
         private bool _ForceStopProcess;
+        private ModelInfo _model;
         private bool _isRunning;
         private CancellationTokenSource _inspectCts;
 
@@ -62,7 +63,7 @@ namespace PickAndPlace.Controller
             return false;
         }
 
-        internal bool Start()
+        internal bool Start(ModelInfo model)
         {
             _logger.Info("Starting inspection...");
             _ForceStopProcess = false;
@@ -70,6 +71,18 @@ namespace PickAndPlace.Controller
             {
                 _logger.Debug("Camera, Robot and Engine are ready, Ready for detection...");
                 AppLogger.Instance.Info("Camera, Robot and Engine are ready, Ready for detection...", "SYSTEM");
+
+                // Load Templates to API
+                _model = model;
+                bool loadRes = LoadTemplatesToEngine(_model.Templates);
+                if (!loadRes)
+                {
+                    _logger.Error("Load Templates to Engine failed, Stop inspection...\rLoad Templates đến Engine thất bại, dừng inspection...");
+                    AppLogger.Instance.Error("Load Templates to Engine failed, Stop inspection...", "SYSTEM");
+                    return false;
+                }
+
+
                 _isRunning = true;
                 //_inspectCts = new CancellationTokenSource();
                 //StartStatusTimer();
@@ -83,6 +96,13 @@ namespace PickAndPlace.Controller
                 return false;
             }
         }
+
+        private bool LoadTemplatesToEngine(List<Template> templates)
+        {
+            var imageList = templates.Select(x => x.Image).ToList();
+            return APICommunication.LoadTemplates(_param.ApiUrlAi, imageList);
+        }
+
         internal void Stop()
         {
             if (_camera != null)
@@ -172,19 +192,27 @@ namespace PickAndPlace.Controller
             var emguCvImage = new Image<Bgr, byte>(bitmap);
 
             var res = APICommunication.GetRealCoord(_param.ApiUrlAi, emguCvImage, model.Width, model.Height);
-            AppLogger.Instance.Info("DONE Calculating Real Coodinates", "SYSTEM");
             if (res != null)
             {
                 if (res.Result)
                 {
+                    AppLogger.Instance.Info("DONE: Calculating Real Coodinates", "SYSTEM");
                     _mainWindow.UpdateImage(Converter.Base64ToBitmap(res.ResImg));
                     _mainWindow.UpdateCalculateResult((double)res.Score, (double)res.ImageX, (double)res.ImageY, (double)res.ImageAngle, (double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
                     _robot.Pick((double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
                     AppLogger.Instance.Info($"Sent Pick Command X: {res.RobotX} Y: {res.RobotY} Angle: {res.RobotAngle}", "SYSTEM");
                 }
+                else
+                {
+                    AppLogger.Instance.Error("ERROR: Cannot Find The Matching PCB Corner", "SYSTEM");
+                }
 
                 _mainWindow.UpdateStatistics(res.Result);
                 _mainWindow.UpdateInspectionStatus(res.Result);
+            }
+            else
+            {
+                AppLogger.Instance.Error("INTERNAL ERROR: Cannot Calculate Real Coodinates", "SYSTEM");
             }
         }
     }

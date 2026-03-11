@@ -59,5 +59,8 @@
     <Setting Name="MODELS_PATH" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\\BroSight\\Models</Value>
     </Setting>
+    <Setting Name="EndPointLoadTemplates" Type="System.String" Scope="User">
+      <Value Profile="(Default)">load_templates</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

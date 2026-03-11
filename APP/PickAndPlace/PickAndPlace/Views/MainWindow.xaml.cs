@@ -111,7 +111,7 @@ namespace PickAndPlace.Views
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            _mainController.Stop();
+            _mainController.Close();
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -151,7 +151,7 @@ namespace PickAndPlace.Views
             bool startOK = false;
             new Task(() =>
             {
-                startOK = _mainController.Start();
+                startOK = _mainController.Start(SelectedModel);
                 wait.KillMe = true;
             }).Start();
             wait.ShowDialog();

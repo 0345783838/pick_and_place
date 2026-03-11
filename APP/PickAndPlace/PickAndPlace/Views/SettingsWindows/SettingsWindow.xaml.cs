@@ -183,6 +183,7 @@ namespace PickAndPlace.Views.SettingsWindows
                 _param.SaveMode = 1;
             }
             _param.Save();
+            this.Close();
         }
 
         private void btnCancel_Click(object sender, RoutedEventArgs e)
