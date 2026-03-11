@@ -463,8 +463,12 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
             if (_cam != null && _cam.IsOpen())
             {
                 _cam.Stop();
-                _cam.Close();
-                _logger.Debug("Camera closed!");
+                _logger.Debug("Camera stopped!");
+            }
+            if (_robot != null)
+            {
+                _robot.Dispose();
+                _logger.Debug("Robot disposed!");
             }
         }
 

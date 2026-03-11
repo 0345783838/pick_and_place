@@ -158,8 +158,20 @@ namespace PickAndPlace.Views.ModelsManagerWindows
             }
             TextBox tb = sender as TextBox;
             string text = tb.Text;
+            int x = 0;
+            int y = 0;
+            try
+            {
+                x = Convert.ToInt32(text);
+                y = Convert.ToInt32(tbPcbHeight.Text);
+            }
+            catch
+            {
+                return;
+            }
 
-            if (Convert.ToInt32(text) != SelectedModel.Width && Convert.ToInt32(tbPcbHeight.Text) != 0 && Convert.ToInt32(text) != 0)
+
+            if (x != SelectedModel.Width && y != 0 && x != 0)
             {
                 CanSave = true;
                 OnPropertyChanged(nameof(CanSave));
@@ -179,8 +191,19 @@ namespace PickAndPlace.Views.ModelsManagerWindows
             }
             TextBox tb = sender as TextBox;
             string text = tb.Text;
+            int x = 0;
+            int y = 0;
+            try
+            {
+                y = Convert.ToInt32(text);
+                x = Convert.ToInt32(tbImageWidth.Text);
+            }
+            catch
+            {
+                return;
+            }
 
-            if (Convert.ToInt32(text) != SelectedModel.Height && Convert.ToInt32(tbPcbHeight.Text) != 0 && Convert.ToInt32(text) != 0)
+            if (y != SelectedModel.Height && x != 0 && y != 0)
             {
                 CanSave = true;
                 OnPropertyChanged(nameof(CanSave));
@@ -201,7 +224,7 @@ namespace PickAndPlace.Views.ModelsManagerWindows
         internal void UpdateModel(ModelInfo model)
         {
             SelectedModel = model;
-            if (SelectedModel.Templates.Count>0) CanSave = true;
+            if (SelectedModel.Templates.Count>0 && Convert.ToInt32(tbPcbHeight.Text) > 0 && Convert.ToInt32(tbImageWidth.Text) > 0) CanSave = true;
             else CanSave = false;
             OnPropertyChanged(nameof(CanSave));
         }

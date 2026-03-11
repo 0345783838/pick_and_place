@@ -1,0 +1,7 @@
+--maybe-done-- fix bug camera
+
+--need to test-- bao loi~ khi khong co ket noi robot
+
+--ok-- them di chuyen RoI bang phim mui ten
+
+--ok-- bug xoa so width height die app

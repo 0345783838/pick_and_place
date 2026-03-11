@@ -208,7 +208,6 @@ namespace PickAndPlace.Views.ModelsManagerWindows
             if (_cam != null && _cam.IsOpen())
             {
                 _cam.Stop();
-                _cam.Close();
                 _logger.Debug("Camera closed!");
             }
         }
@@ -595,6 +594,66 @@ namespace PickAndPlace.Views.ModelsManagerWindows
                 }
                 CanSave = true;
                 OnPropertyChanged(nameof(CanSave));
+            }
+        }
+
+        private void imbCameraImage_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (!_isSelectingRoi) return;
+
+
+            if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.Right)
+            {
+                if (CurDrawingRoi.X + CurDrawingRoi.Width == _showingImage.Width) return;
+                CurDrawingRoi = new Rectangle(CurDrawingRoi.X, CurDrawingRoi.Y, CurDrawingRoi.Width + 1, CurDrawingRoi.Height);
+                OnPropertyChanged(nameof(CurDrawingRoi));
+            }
+            else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.Left)
+            {
+                if (CurDrawingRoi.Width <= 1) return;
+                CurDrawingRoi = new Rectangle(CurDrawingRoi.X, CurDrawingRoi.Y, CurDrawingRoi.Width - 1, CurDrawingRoi.Height);
+                OnPropertyChanged(nameof(CurDrawingRoi));
+            }
+            else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.Down)
+            {
+                if (CurDrawingRoi.Y + CurDrawingRoi.Height == _showingImage.Height) return;
+                CurDrawingRoi = new Rectangle(CurDrawingRoi.X, CurDrawingRoi.Y, CurDrawingRoi.Width, CurDrawingRoi.Height + 1);
+                OnPropertyChanged(nameof(CurDrawingRoi));
+            }
+            else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.Up)
+            {
+                if (CurDrawingRoi.Height <= 1) return;
+                CurDrawingRoi = new Rectangle(CurDrawingRoi.X, CurDrawingRoi.Y, CurDrawingRoi.Width, CurDrawingRoi.Height - 1);
+                OnPropertyChanged(nameof(CurDrawingRoi));
+            }
+            else if (e.Key == Key.Left)
+            {
+                if (CurDrawingRoi.X == 0) return;
+                CurDrawingRoi = new Rectangle(CurDrawingRoi.X - 1, CurDrawingRoi.Y, CurDrawingRoi.Width, CurDrawingRoi.Height);
+                OnPropertyChanged(nameof(CurDrawingRoi));
+            }
+            else if (e.Key == Key.Right)
+            {
+                if (CurDrawingRoi.X + CurDrawingRoi.Width == _showingImage.Width) return;
+                CurDrawingRoi = new Rectangle(CurDrawingRoi.X + 1, CurDrawingRoi.Y, CurDrawingRoi.Width, CurDrawingRoi.Height);
+                OnPropertyChanged(nameof(CurDrawingRoi));
+            }
+            else if (e.Key == Key.Up)
+            {
+                if (CurDrawingRoi.Y == 0) return;
+                CurDrawingRoi = new Rectangle(CurDrawingRoi.X, CurDrawingRoi.Y - 1, CurDrawingRoi.Width, CurDrawingRoi.Height);
+                OnPropertyChanged(nameof(CurDrawingRoi));
+            }
+            else if (e.Key == Key.Down)
+            {
+                if (CurDrawingRoi.Y + CurDrawingRoi.Height == _showingImage.Height) return;
+                CurDrawingRoi = new Rectangle(CurDrawingRoi.X, CurDrawingRoi.Y + 1, CurDrawingRoi.Width, CurDrawingRoi.Height);
+                OnPropertyChanged(nameof(CurDrawingRoi));
             }
         }
     }

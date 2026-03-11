@@ -16,6 +16,7 @@
     Icon="/Resources/Icons/robot-arm.png"
     Loaded="Window_Loaded"
     ResizeMode="NoResize"
+    KeyDown="Window_KeyDown"
     Style="{StaticResource WindowStyle}"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">

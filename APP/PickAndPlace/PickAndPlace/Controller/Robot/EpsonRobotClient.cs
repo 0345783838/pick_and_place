@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PickAndPlace.Controllers;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
@@ -31,15 +32,43 @@ namespace PickAndPlace.Controller.Robot
 
         #region Connect / Login
 
-        public void Connect()
+        //public void Connect()
+        //{
+        //    if (_commandClient != null && _commandClient.Connected)
+        //        return;
+
+        //    _commandClient = new TcpClient();
+        //    _commandClient.Connect(_ip, COMMAND_PORT);
+
+        //    _commandStream = _commandClient.GetStream();
+
+        //    _commandReader = new StreamReader(_commandStream, Encoding.ASCII);
+        //    _commandWriter = new StreamWriter(_commandStream, Encoding.ASCII)
+        //    {
+        //        AutoFlush = true,
+        //    };
+
+        //    Login();
+        //}
+        public bool Connect(int timeout = 3000)
         {
             if (_commandClient != null && _commandClient.Connected)
-                return;
+                return true;
 
             _commandClient = new TcpClient();
-            _commandClient.Connect(_ip, COMMAND_PORT);
+            var task = _commandClient.ConnectAsync(_ip, COMMAND_PORT);
+
+            if (!task.Wait(timeout))
+            {
+                AppLogger.Instance.Error("Robot connect timeout", "ROBOT_CONNECT_TIMEOUT");
+                return false;
+            }
+              
+
 
             _commandStream = _commandClient.GetStream();
+            _commandStream.ReadTimeout = timeout;
+            _commandStream.WriteTimeout = timeout;
 
             _commandReader = new StreamReader(_commandStream, Encoding.ASCII);
             _commandWriter = new StreamWriter(_commandStream, Encoding.ASCII)
@@ -48,6 +77,7 @@ namespace PickAndPlace.Controller.Robot
             };
 
             Login();
+            return _isLoggedIn;
         }
 
         private void Login()
@@ -61,7 +91,6 @@ namespace PickAndPlace.Controller.Robot
             else
             {
                 _isLoggedIn = false;
-                
             }
         }
 
@@ -69,26 +98,103 @@ namespace PickAndPlace.Controller.Robot
 
         #region Command Port
 
+        //private string SendCommandPort(string cmd)
+        //{
+        //    _commandWriter.WriteLine(cmd);
+
+        //    string response = _commandReader.ReadLine();
+
+        //    if (response == null)
+        //        throw new Exception("Robot command port disconnected");
+
+        //    if (response.StartsWith("ERROR"))
+        //        throw new Exception($"Robot error: {response}");
+
+        //    return response;
+        //}
         private string SendCommandPort(string cmd)
         {
-            _commandWriter.WriteLine(cmd);
+            try
+            {
+                _commandWriter.WriteLine(cmd);
 
-            string response = _commandReader.ReadLine();
+                string response = _commandReader.ReadLine();
 
-            if (response == null)
-                throw new Exception("Robot command port disconnected");
+                if (response == null)
+                    throw new Exception("Robot command port disconnected");
 
-            if (response.StartsWith("ERROR"))
-                throw new Exception($"Robot error: {response}");
+                if (response.StartsWith("ERROR"))
+                    throw new Exception($"Robot error: {response}");
 
-            return response;
+                return response;
+            }
+            catch (IOException)
+            {
+                AppLogger.Instance.Error("Robot command timeout", "ROBOT_COMMAND_TIMEOUT");
+                return string.Empty;
+            }
         }
 
         #endregion
 
         #region Execution
 
-        private string ExecuteRobotCommand(string command)
+        //private string ExecuteRobotCommand(string command)
+        //{
+        //    lock (_lock)
+        //    {
+        //        if (_commandClient == null || !_commandClient.Connected)
+        //        {
+        //            Connect();
+        //        }
+
+        //        // yêu cầu robot mở port 2000
+        //        var resStart = SendCommandPort("$Start,0");
+        //        if (resStart.Contains("!"))
+        //        {
+        //            SendCommandPort("$Stop,0");
+        //            var res2 = SendCommandPort("$Start,0");
+        //            if (res2.Contains("!"))
+        //            {
+        //                throw new Exception($"Cannot Start Robot Command!:");
+        //            }
+        //        }
+
+        //        // robot cần chút thời gian mở port
+        //        Thread.Sleep(100);
+
+        //        using (TcpClient execClient = new TcpClient())
+        //        {
+        //            execClient.Connect(_ip, EXEC_PORT);
+
+        //            NetworkStream stream = execClient.GetStream();
+        //            StreamReader reader = new StreamReader(stream, Encoding.ASCII);
+        //            StreamWriter writer = new StreamWriter(stream, Encoding.ASCII)
+        //            {
+        //                AutoFlush = true
+        //            };
+
+
+        //            writer.WriteLine(command);
+
+        //            string response = reader.ReadLine();
+
+        //            if (response == null)
+        //                throw new Exception("Robot execution disconnected");
+
+        //            if (response.StartsWith("ERROR"))
+        //                throw new Exception($"Robot error: {response}");
+
+        //            stream.Close();
+        //            reader.Close();
+        //            writer.Close();
+
+        //            return response;
+
+        //        }
+        //    }
+        //}
+        private string ExecuteRobotCommand(string command, int readTimeout = 3000, int writeTimeout = 3000)
         {
             lock (_lock)
             {
@@ -103,9 +209,9 @@ namespace PickAndPlace.Controller.Robot
                 {
                     SendCommandPort("$Stop,0");
                     var res2 = SendCommandPort("$Start,0");
-                    if (res2.Contains("!"))
+                    if (res2.Contains("!") || res2 == string.Empty)
                     {
-                        throw new Exception($"Cannot Start Robot Command!:");
+                        AppLogger.Instance.Error($"Cannot Send/Timeout Start Robot PORT {EXEC_PORT}!", "ROBOT_START_COMMAND_ERROR");
                     }
                 }
 
@@ -114,35 +220,49 @@ namespace PickAndPlace.Controller.Robot
 
                 using (TcpClient execClient = new TcpClient())
                 {
-                    execClient.Connect(_ip, EXEC_PORT);
+                    var task = execClient.ConnectAsync(_ip, EXEC_PORT);
+                    if (!task.Wait(writeTimeout))
+                        AppLogger.Instance.Error($"Connect to robot PORT {EXEC_PORT} error!", "ROBOT_EXEC_CONNECT_TIMEOUT");
 
                     NetworkStream stream = execClient.GetStream();
+                    stream.ReadTimeout = readTimeout;
+                    stream.WriteTimeout = writeTimeout;
                     StreamReader reader = new StreamReader(stream, Encoding.ASCII);
                     StreamWriter writer = new StreamWriter(stream, Encoding.ASCII)
                     {
                         AutoFlush = true
                     };
-                   
+
 
                     writer.WriteLine(command);
 
-                    string response = reader.ReadLine();
+                    string response = string.Empty;
 
-                    if (response == null)
-                        throw new Exception("Robot execution disconnected");
+                    try
+                    {
+                        response = reader.ReadLine();
+                    }
+                    catch (IOException)
+                    {
+                        AppLogger.Instance.Error($"Read Robot timeout PORT {EXEC_PORT} - CMD: {command}", "ROBOT_READ_TIMEOUT");
+                    }
 
                     if (response.StartsWith("ERROR"))
-                        throw new Exception($"Robot error: {response}");
+                    {
+                        AppLogger.Instance.Error($"Read Robot error PORT {EXEC_PORT} - CMD: {command}", "ROBOT_READ_ERROR");
+                    }
+                        
 
                     stream.Close();
                     reader.Close();
                     writer.Close();
 
                     return response;
-                    
+
                 }
             }
         }
+
 
         #endregion
 
@@ -150,10 +270,8 @@ namespace PickAndPlace.Controller.Robot
 
         public bool IsRobotReady()
         {
+            // It should be checking connection via CMD status
             return _isLoggedIn;
-            string res = ExecuteRobotCommand("GET_STATUS");
-
-            return res.Contains("IDLE");
         }
 
         #endregion
@@ -165,8 +283,11 @@ namespace PickAndPlace.Controller.Robot
             string cmd = $"MOVE {x:F3} {y:F3}";
             try
             {
-                ExecuteRobotCommand(cmd);
-                return true;
+                var res = ExecuteRobotCommand(cmd);
+                if (res != null && res != string.Empty)
+                    return true;
+
+                return false;
             }
             catch (Exception e)
             {
@@ -181,8 +302,11 @@ namespace PickAndPlace.Controller.Robot
 
             try
             {
-                ExecuteRobotCommand(cmd);
-                return true;
+                var res = ExecuteRobotCommand(cmd);
+                if (res != null && res != string.Empty)
+                    return true;
+
+                return false;
             }
             catch (Exception e)
             {
@@ -199,11 +323,15 @@ namespace PickAndPlace.Controller.Robot
             try
             {
                 string res = ExecuteRobotCommand("GET_POSE");
-                return (true, ParsePose(res), "Success!");
+                if (res != null && res != string.Empty)
+                    return (true, ParsePose(res), "Success!");
+
+                return (false, null, "Get current position error!");
+
             }
             catch (Exception e)
             {
-                return (true, null, e.Message);
+                return (false, null, e.Message);
             }
             
 

@@ -108,7 +108,6 @@ namespace PickAndPlace.Controller
             if (_camera != null)
             {
                 _camera.Stop();
-                _camera.Close();
             }
         }
         internal void Close()
@@ -117,6 +116,10 @@ namespace PickAndPlace.Controller
             {
                 _camera.Stop();
                 _camera.Close();
+            }
+            if (_robot != null)
+            {
+                _robot.Dispose();
             }
             AIServiceController.CloseProcessExisting();
         }
@@ -154,7 +157,7 @@ namespace PickAndPlace.Controller
 
                 if (!ready)
                 {
-                    AppLogger.Instance.Error("Robot not ready", "SYSTEM");
+                    AppLogger.Instance.Error("Robot is not connected, login failed!", "ROBOT_CONNECT_FAILED");
                     return false;
                 }
 
@@ -162,7 +165,7 @@ namespace PickAndPlace.Controller
             }
             catch (Exception ex)
             {
-                AppLogger.Instance.Error(ex.Message, "SYSTEM");
+                AppLogger.Instance.Error(ex.Message, "ROBOT_CONNECT_FAILED");
                 return false;
             }
         }
@@ -174,7 +177,8 @@ namespace PickAndPlace.Controller
             _camera = _cameraManager.GetCamera();
             if (!_camera.IsOpen())
             {
-                _mainWindow.ShowError(string.Format("Không mở được camera 1 với SN {0}\nCan't open 1 camera with SN:{0}", _param.CamSn));
+                _mainWindow.ShowError(string.Format("Không mở được camera với SN {0}\nCan't open  camera with SN:{0}", _param.CamSn));
+                AppLogger.Instance.Error(string.Format("Không mở được camera với SN {0}\nCan't open  camera with SN:{0}", _param.CamSn), "CAMERA_OPEN_FAILED");
                 return false;
             }
 
