@@ -25,7 +25,7 @@ namespace PickAndPlace.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("DA7667501")]
         public string CamSn {
             get {
                 return ((string)(this["CamSn"]));
@@ -37,7 +37,7 @@ namespace PickAndPlace.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("50000")]
         public int CamExposure {
             get {
                 return ((int)(this["CamExposure"]));
@@ -260,6 +260,54 @@ namespace PickAndPlace.Properties {
             }
             set {
                 this["EndPointLoadTemplates"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3000")]
+        public int WriteTimeout {
+            get {
+                return ((int)(this["WriteTimeout"]));
+            }
+            set {
+                this["WriteTimeout"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30000")]
+        public int PickTimeout {
+            get {
+                return ((int)(this["PickTimeout"]));
+            }
+            set {
+                this["PickTimeout"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3000")]
+        public int ReadPoseTimeout {
+            get {
+                return ((int)(this["ReadPoseTimeout"]));
+            }
+            set {
+                this["ReadPoseTimeout"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10000")]
+        public int MoveTimeout {
+            get {
+                return ((int)(this["MoveTimeout"]));
+            }
+            set {
+                this["MoveTimeout"] = value;
             }
         }
     }

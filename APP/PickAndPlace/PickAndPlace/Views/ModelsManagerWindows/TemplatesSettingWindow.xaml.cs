@@ -597,12 +597,7 @@ namespace PickAndPlace.Views.ModelsManagerWindows
             }
         }
 
-        private void imbCameraImage_KeyDown(object sender, KeyEventArgs e)
-        {
-
-        }
-
-        private void Window_KeyDown(object sender, KeyEventArgs e)
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             if (!_isSelectingRoi) return;
 
@@ -655,6 +650,7 @@ namespace PickAndPlace.Views.ModelsManagerWindows
                 CurDrawingRoi = new Rectangle(CurDrawingRoi.X, CurDrawingRoi.Y + 1, CurDrawingRoi.Width, CurDrawingRoi.Height);
                 OnPropertyChanged(nameof(CurDrawingRoi));
             }
+            UpdateDrawingDetails();
         }
     }
 }

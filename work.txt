@@ -1,7 +1,13 @@
---maybe-done-- fix bug camera
+===Bao mat===
+1. Hardware License
+   - Hash machine_id (cpu, ...) + challenge
+   - UI License 
+         + convert public key sang xml để chạy được .NET framework 
+         + (get machine_id + challenge => nhập activation code) 
+   - App gen activation key
 
---need to test-- bao loi~ khi khong co ket noi robot
 
---ok-- them di chuyen RoI bang phim mui ten
 
---ok-- bug xoa so width height die app
+2. Save option + Save image
+
+3. Obfuscate C# code

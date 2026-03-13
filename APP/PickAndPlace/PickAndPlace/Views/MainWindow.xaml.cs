@@ -116,17 +116,33 @@ namespace PickAndPlace.Views
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            new Task(new Action(() =>
+            var waiting = new WaitingWindow("Checking machine license...");
+            bool resLicense = false;
+            new Task(() =>
             {
-                var res = _mainController.RunServiceAsync(20000, "Program is loading...");
-            })).Start();
+                resLicense = _mainController.CheckLicense();
+                waiting.KillMe = true;
+            }).Start();
+            waiting.ShowDialog();
+           
+            if (resLicense)
+            {
+                new Task(new Action(() =>
+                {
+                    var res = _mainController.RunServiceAsync(20000, "Loading program...");
+                })).Start();
+            }
+            else
+            {
+                AppLogger.Instance.Error("Machine license is not valid! Please contact vendor!", "SYSTEM");
+            }
         }
 
         private void btnSettings_Click(object sender, RoutedEventArgs e)
         {
             var window = new SettingsWindow();
             window.ShowDialog();
-        }
+        }   
 
         private void btnCalibIntrinsic_Click(object sender, RoutedEventArgs e)
         {
@@ -159,12 +175,20 @@ namespace PickAndPlace.Views
             if (startOK)
             {
                 btnStart.IsEnabled = false;
+                cbbModelNames.IsEnabled = false;
+                btnSettings.IsEnabled = false;
+                btnModelsManager.IsEnabled = false;
+                btnCalibEyeToHand2D.IsEnabled = false;
                 btnStop.IsEnabled = true;
                 btnTest.IsEnabled = true;
             }
             else
             {
                 btnStart.IsEnabled = true;
+                cbbModelNames.IsEnabled = true;
+                btnSettings.IsEnabled = true;
+                btnModelsManager.IsEnabled = true;
+                btnCalibEyeToHand2D.IsEnabled = true;
                 btnStop.IsEnabled = false;
                 btnTest.IsEnabled = false;
             }
@@ -174,6 +198,10 @@ namespace PickAndPlace.Views
         {
             _mainController.Stop();
             btnStart.IsEnabled = true;
+            cbbModelNames.IsEnabled = true;
+            btnSettings.IsEnabled = true;
+            btnModelsManager.IsEnabled = true;
+            btnCalibEyeToHand2D.IsEnabled = true;
             btnStop.IsEnabled = false;
             btnTest.IsEnabled = false;
         }

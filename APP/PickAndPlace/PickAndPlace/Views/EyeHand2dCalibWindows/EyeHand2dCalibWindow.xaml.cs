@@ -260,7 +260,7 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
             //int number2 = rnd.Next(1, 1000); // 1 → 999
             //UpdateRobotCoord(number1, number2);
 
-            (bool res, RobotPose pose, string mes) = _robot.GetCurrentPosition();
+            (bool res, RobotPose pose, string mes) = _robot.GetCurrentPosition(_param.WriteTimeout, _param.ReadPoseTimeout);
             if (res)
             {
                 UpdateRobotCoord(pose.X, pose.Y);
@@ -526,7 +526,7 @@ namespace PickAndPlace.Views.EyeHand2dCalibWindows
                 }
             }
 
-            _robot.MoveXY(Convert.ToDouble(tbRobotX.Text), Convert.ToDouble(tbRobotY.Text));
+            _robot.MoveXY(Convert.ToDouble(tbRobotX.Text), Convert.ToDouble(tbRobotY.Text), _param.WriteTimeout, _param.MoveTimeout);
         }
 
         private void btnSaveMatrix_MouseDown(object sender, MouseButtonEventArgs e)

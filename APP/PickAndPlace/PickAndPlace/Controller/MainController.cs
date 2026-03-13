@@ -149,6 +149,10 @@ namespace PickAndPlace.Controller
         {
             try
             {
+                if (_robot != null && _robot.IsRobotReady())
+                {
+                    return true;
+                }
                 _robot = new EpsonRobotClient(_param.RobotIp);
 
                 _robot.Connect();
@@ -203,7 +207,7 @@ namespace PickAndPlace.Controller
                     AppLogger.Instance.Info("DONE: Calculating Real Coodinates", "SYSTEM");
                     _mainWindow.UpdateImage(Converter.Base64ToBitmap(res.ResImg));
                     _mainWindow.UpdateCalculateResult((double)res.Score, (double)res.ImageX, (double)res.ImageY, (double)res.ImageAngle, (double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
-                    _robot.Pick((double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle);
+                    _robot.Pick((double)res.RobotX, (double)res.RobotY, (double)res.RobotAngle, _param.WriteTimeout, _param.PickTimeout);
                     AppLogger.Instance.Info($"Sent Pick Command X: {res.RobotX} Y: {res.RobotY} Angle: {res.RobotAngle}", "SYSTEM");
                 }
                 else
@@ -218,6 +222,12 @@ namespace PickAndPlace.Controller
             {
                 AppLogger.Instance.Error("INTERNAL ERROR: Cannot Calculate Real Coodinates", "SYSTEM");
             }
+        }
+
+        internal bool CheckLicense()
+        {
+            Thread.Sleep(2000);
+            return true;
         }
     }
 }

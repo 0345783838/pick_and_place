@@ -194,7 +194,7 @@ namespace PickAndPlace.Controller.Robot
         //        }
         //    }
         //}
-        private string ExecuteRobotCommand(string command, int readTimeout = 3000, int writeTimeout = 3000)
+        private string ExecuteRobotCommand(string command, int writeTimeout = 3000, int readTimeout = 3000)
         {
             lock (_lock)
             {
@@ -278,12 +278,12 @@ namespace PickAndPlace.Controller.Robot
 
         #region Motion
 
-        public bool MoveXY(double x, double y)
+        public bool MoveXY(double x, double y, int writeTimeout = 3000, int readTimeout = 3000)
         {
             string cmd = $"MOVE {x:F3} {y:F3}";
             try
             {
-                var res = ExecuteRobotCommand(cmd);
+                var res = ExecuteRobotCommand(cmd, writeTimeout, readTimeout);
                 if (res != null && res != string.Empty)
                     return true;
 
@@ -296,13 +296,13 @@ namespace PickAndPlace.Controller.Robot
             
         }
 
-        public bool Pick(double x, double y, double w)
+        public bool Pick(double x, double y, double w, int writeTimeout = 3000, int readTimeout = 3000)
         {
             string cmd = $"PICK {x:F3} {y:F3} {w:F3}";
 
             try
             {
-                var res = ExecuteRobotCommand(cmd);
+                var res = ExecuteRobotCommand(cmd, writeTimeout, readTimeout);
                 if (res != null && res != string.Empty)
                     return true;
 
@@ -318,11 +318,11 @@ namespace PickAndPlace.Controller.Robot
 
         #region Position
 
-        public (bool, RobotPose, string) GetCurrentPosition()
+        public (bool, RobotPose, string) GetCurrentPosition(int writeTimeout = 3000, int readTimeout = 3000)
         {
             try
             {
-                string res = ExecuteRobotCommand("GET_POSE");
+                string res = ExecuteRobotCommand("GET_POSE", writeTimeout, readTimeout);
                 if (res != null && res != string.Empty)
                     return (true, ParsePose(res), "Success!");
 

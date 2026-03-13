@@ -130,7 +130,21 @@ namespace PickAndPlace.Views.ModelsManagerWindows
 
         private void btnSave_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (Convert.ToInt32(tbImageWidth.Text) == 0 || Convert.ToInt32(tbPcbHeight.Text) == 0)
+            int w;
+            int h;
+            try
+            {
+                w = Convert.ToInt32(tbImageWidth.Text);
+                h = Convert.ToInt32(tbPcbHeight.Text);
+            }
+            catch
+            {
+                var box = new ErrorWindow("Width and Height are not valid!\rChiều rộng và chiều cao PCB không hợp lệ!");
+                box.ShowDialog();
+                return;
+            }
+
+            if (w == 0 || h == 0)
             {
                 var box = new ErrorWindow("Width and Height must be greater than 0!\rChiều rộng và chiều cao PCB phải lớn hơn 0!");
                 box.ShowDialog();
@@ -224,7 +238,20 @@ namespace PickAndPlace.Views.ModelsManagerWindows
         internal void UpdateModel(ModelInfo model)
         {
             SelectedModel = model;
-            if (SelectedModel.Templates.Count>0 && Convert.ToInt32(tbPcbHeight.Text) > 0 && Convert.ToInt32(tbImageWidth.Text) > 0) CanSave = true;
+            int w;
+            int h;
+            try
+            {
+                w = Convert.ToInt32(tbImageWidth.Text);
+                h = Convert.ToInt32(tbPcbHeight.Text);
+            }
+            catch
+            {
+                CanSave = false;
+                OnPropertyChanged(nameof(CanSave));
+                return;
+            }
+            if (w > 0 && h > 0) CanSave = true;
             else CanSave = false;
             OnPropertyChanged(nameof(CanSave));
         }
