@@ -81,12 +81,16 @@
     <Reference Include="System.Buffers, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.6.1\lib\net462\System.Buffers.dll</HintPath>
     </Reference>
+    <Reference Include="System.CodeDom, Version=10.0.0.5, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.CodeDom.10.0.5\lib\net462\System.CodeDom.dll</HintPath>
+    </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Pipelines, Version=10.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IO.Pipelines.10.0.0\lib\net462\System.IO.Pipelines.dll</HintPath>
     </Reference>
+    <Reference Include="System.Management" />
     <Reference Include="System.Memory, Version=4.0.5.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Memory.4.6.3\lib\net462\System.Memory.dll</HintPath>
     </Reference>
@@ -154,16 +158,24 @@
     <Compile Include="Controller\Robot\EpsonRobotClient.cs" />
     <Compile Include="Models\Calib2DResponse.cs" />
     <Compile Include="Models\GetCoordResponse.cs" />
+    <Compile Include="Models\LicensePayload.cs" />
     <Compile Include="Models\LogItem.cs" />
     <Compile Include="Models\ModelInfo.cs" />
     <Compile Include="Models\MyEnum.cs" />
     <Compile Include="Models\PairPoint.cs" />
     <Compile Include="Models\Template.cs" />
+    <Compile Include="Security\LicenseKey.cs" />
+    <Compile Include="Security\RsaVerifier.cs" />
     <Compile Include="Services\ErrrorService.cs" />
+    <Compile Include="Security\LicenseManager.cs" />
     <Compile Include="Utils\BindingConverter.cs" />
     <Compile Include="Utils\Converter.cs" />
     <Compile Include="Utils\DateTime.cs" />
     <Compile Include="Utils\IO.cs" />
+    <Compile Include="Security\MachineInfo.cs" />
+    <Compile Include="Views\ActivationWindows\ActivationWindow.xaml.cs">
+      <DependentUpon>ActivationWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\EyeHand2dCalibWindows\EyeHand2dCalibWindow.xaml.cs">
       <DependentUpon>EyeHand2dCalibWindow.xaml</DependentUpon>
     </Compile>
@@ -205,6 +217,10 @@
     <Page Include="Resources\Styles\Window.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ActivationWindows\ActivationWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\EyeHand2dCalibWindows\EyeHand2dCalibWindow.xaml">
       <SubType>Designer</SubType>
@@ -322,9 +338,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Views\LicenseWindows\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Resource Include="Resources\Icons\arrow-left.png" />
     <Resource Include="Resources\Icons\arrow-right.png" />

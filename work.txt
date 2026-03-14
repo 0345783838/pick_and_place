@@ -1,10 +1,10 @@
 ===Bao mat===
-1. Hardware License
-   - Hash machine_id (cpu, ...) + challenge
-   - UI License 
-         + convert public key sang xml để chạy được .NET framework 
-         + (get machine_id + challenge => nhập activation code) 
-   - App gen activation key
+--ok-- 1. Hardware License
+              - Hash machine_id (cpu, ...) + challenge
+              - UI License 
+                    + convert public key sang xml để chạy được .NET framework 
+                    + (get machine_id + challenge => nhập activation code) 
+              - App gen activation key
 
 
 

@@ -6,12 +6,17 @@ using PickAndPlace.Controllers;
 using PickAndPlace.Controllers.APIs;
 using PickAndPlace.Controllers.Camera;
 using PickAndPlace.Models;
+using PickAndPlace.Security;
 using PickAndPlace.Utils;
 using PickAndPlace.Views;
+using PickAndPlace.Views.ActivationWindows;
+using PickAndPlace.Views.UtilitiesWindows;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Management;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -226,8 +231,66 @@ namespace PickAndPlace.Controller
 
         internal bool CheckLicense()
         {
-            Thread.Sleep(2000);
-            return true;
+            string licensePath = @"plugin\license.dat";
+            var error = "License is not valid, contact with vendor to active!\rLicense không hợp lệ, liên hệ với vendor để active!";
+            var info = "Activation key is valid, continue to use!\rActivation key hợp lệ, hãy tiếp tục sử dụng chương trình!";
+            var res = false;
+            if (!File.Exists(licensePath))
+            {
+                _mainWindow.Dispatcher.Invoke(() => 
+                {
+                    var win = new ActivationWindow();
+                    win.Topmost = true;
+
+                    if (win.ShowDialog() != true)
+                    {
+                        AppLogger.Instance.Error("License is not valid!", "SYSTEM");
+                        _mainWindow.ShowError(error);
+                    }
+                    else
+                    {
+                        AppLogger.Instance.Info("License is valid!", "SYSTEM");
+                        _mainWindow.ShowInfo(info);
+                        res = true;
+                    }
+                });
+            }
+            else
+            {
+                string key = File.ReadAllText(licensePath);
+                (bool isValid, string message) = LicenseManager.ValidateActivationKey(key);
+                if (!isValid)
+                {
+                    AppLogger.Instance.Error(message, "SYSTEM");
+                    _mainWindow.ShowError(error);
+
+                    AppLogger.Instance.Info("Processing creating new activation key!", "SYSTEM");
+
+                    _mainWindow.Dispatcher.Invoke(() => 
+                    {
+                        var win = new ActivationWindow();
+                        win.Topmost = true;
+                        if (win.ShowDialog() != true)
+                        {
+                            AppLogger.Instance.Error("License is not valid!", "SYSTEM");
+                            _mainWindow.ShowError(error);
+                        }
+
+                        else
+                        {
+                            AppLogger.Instance.Info("License is valid!", "SYSTEM");
+                            _mainWindow.ShowInfo(info);
+                            res = true;
+                        }
+                    });
+                }
+                else
+                {
+                    AppLogger.Instance.Info("License is valid!", "SYSTEM");
+                    res = true;
+                }
+            }
+            return res;
         }
     }
 }

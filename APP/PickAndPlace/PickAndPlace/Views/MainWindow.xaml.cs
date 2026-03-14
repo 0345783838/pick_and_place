@@ -113,10 +113,35 @@ namespace PickAndPlace.Views
         {
             _mainController.Close();
         }
+        private void DisableWindows()
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                btnSettings.IsEnabled = false;
+                btnModelsManager.IsEnabled = false;
+                btnCalibEyeToHand2D.IsEnabled = false;
+                btnStart.IsEnabled = false;
+                btnStop.IsEnabled = false;
+                btnTest.IsEnabled = false;
+            }));
+        }
+        private void EnableWindows()
+        {
+            this.Dispatcher.Invoke(new Action(() =>
+            {
+                btnSettings.IsEnabled = true;
+                btnModelsManager.IsEnabled = true;
+                btnCalibEyeToHand2D.IsEnabled = true;
+                btnStart.IsEnabled = true;
+            }));
+   
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            DisableWindows();
             var waiting = new WaitingWindow("Checking machine license...");
+            waiting.Topmost = false;
             bool resLicense = false;
             new Task(() =>
             {
@@ -127,9 +152,10 @@ namespace PickAndPlace.Views
            
             if (resLicense)
             {
+                bool res = false;
                 new Task(new Action(() =>
                 {
-                    var res = _mainController.RunServiceAsync(20000, "Loading program...");
+                    res = _mainController.RunServiceAsync(20000, "Loading program...");
                 })).Start();
             }
             else
@@ -226,7 +252,6 @@ namespace PickAndPlace.Views
                             }
                         }
                         wait.KillMe = true;
-                        UpdateAIStatus(true);
                         if (!_mainController._serviceIsRun)
                         {
                             this.Dispatcher.Invoke(new Action(() =>
@@ -235,6 +260,11 @@ namespace PickAndPlace.Views
                                 var box = new ErrorWindow("Cannot start AI service! Please contact IT!\rKhông khởi động được AI, Hãy liên hệ bộ phận PI");
                                 box.ShowDialog();
                             }));
+                        }
+                        else
+                        {
+                            UpdateAIStatus(true);
+                            EnableWindows();
                         }
                     }).Start();
                     wait.ShowDialog();
