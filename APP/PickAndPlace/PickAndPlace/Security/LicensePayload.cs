@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PickAndPlace.Models
+namespace PickAndPlace.Security
 {
     public class LicensePayload
     {

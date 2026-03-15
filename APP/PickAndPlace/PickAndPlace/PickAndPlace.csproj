@@ -158,7 +158,7 @@
     <Compile Include="Controller\Robot\EpsonRobotClient.cs" />
     <Compile Include="Models\Calib2DResponse.cs" />
     <Compile Include="Models\GetCoordResponse.cs" />
-    <Compile Include="Models\LicensePayload.cs" />
+    <Compile Include="Security\LicensePayload.cs" />
     <Compile Include="Models\LogItem.cs" />
     <Compile Include="Models\ModelInfo.cs" />
     <Compile Include="Models\MyEnum.cs" />
